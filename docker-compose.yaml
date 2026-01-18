@@ -1,0 +1,10 @@
+# NETRUNNER TERMINAL - Docker Compose Configuration
+# Run with: docker-compose up --build
+
+services:
+  netrunner-terminal:
+    build: .
+    container_name: cyberterminal
+    ports:
+      - "8080:80"
+    restart: unless-stopped

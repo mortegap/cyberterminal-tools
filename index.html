@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NETRUNNER TERMINAL v2.077</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Scanline overlay -->
+    <div class="scanlines"></div>
+
+    <!-- Boot screen -->
+    <div id="boot-screen" class="boot-screen">
+        <div class="boot-content">
+            <div class="boot-logo">NETRUNNER</div>
+            <div class="boot-text">
+                <span class="boot-line">[SYSTEM] Initializing neural interface...</span>
+                <span class="boot-line">[SYSTEM] Establishing secure connection...</span>
+                <span class="boot-line">[SYSTEM] Loading quickhack modules...</span>
+                <span class="boot-line">[SYSTEM] Terminal ready.</span>
+            </div>
+            <div class="boot-progress">
+                <div class="boot-progress-bar"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main terminal container -->
+    <main id="terminal" class="terminal hidden">
+        <!-- Header -->
+        <header class="terminal-header">
+            <div class="header-left">
+                <span class="header-icon">&#x2588;&#x2588;</span>
+                <h1 class="header-title">NETRUNNER TERMINAL</h1>
+            </div>
+            <div class="header-right">
+                <span class="header-status">CONNECTED</span>
+                <span class="header-version">v2.077</span>
+            </div>
+        </header>
+
+        <!-- Navigation / Main Menu -->
+        <nav id="main-menu" class="main-menu">
+            <div class="menu-header">
+                <span class="menu-label">// SELECT QUICKHACK</span>
+            </div>
+            <div class="menu-options">
+                <button class="menu-option" data-section="encoder">
+                    <span class="option-icon">[01]</span>
+                    <span class="option-name">DATA ENCODER</span>
+                    <span class="option-desc">Binary/Hex/Base64/ASCII85 conversion</span>
+                </button>
+                <button class="menu-option" data-section="hacking-game">
+                    <span class="option-icon">[02]</span>
+                    <span class="option-name">BREACH PROTOCOL</span>
+                    <span class="option-desc">ICE breaker minigame</span>
+                </button>
+            </div>
+            <div class="menu-footer">
+                <span class="footer-text">// ARASAKA SUBNET DETECTED</span>
+            </div>
+        </nav>
+
+        <!-- Content Sections -->
+        <div id="content-container" class="content-container hidden">
+            <!-- Back button -->
+            <button id="back-btn" class="back-btn">
+                <span class="back-icon">&lt;</span>
+                <span class="back-text">DISCONNECT</span>
+            </button>
+
+            <!-- Encoder Section -->
+            <section id="encoder-section" class="tool-section hidden">
+                <div class="section-header">
+                    <h2 class="section-title">DATA ENCODER/DECODER</h2>
+                    <span class="section-subtitle">// Neural data conversion utility</span>
+                </div>
+
+                <div class="encoder-container">
+                    <!-- Mode selector -->
+                    <div class="mode-selector">
+                        <button class="mode-btn active" data-mode="binary">
+                            <span class="mode-icon">01</span>
+                            <span class="mode-name">BINARY</span>
+                        </button>
+                        <button class="mode-btn" data-mode="hex">
+                            <span class="mode-icon">0x</span>
+                            <span class="mode-name">HEXADECIMAL</span>
+                        </button>
+                        <button class="mode-btn" data-mode="base64">
+                            <span class="mode-icon">64</span>
+                            <span class="mode-name">BASE64</span>
+                        </button>
+                        <button class="mode-btn" data-mode="ascii85">
+                            <span class="mode-icon">85</span>
+                            <span class="mode-name">ASCII85</span>
+                        </button>
+                    </div>
+
+                    <!-- Input area -->
+                    <div class="input-group">
+                        <label class="input-label">// INPUT DATA</label>
+                        <textarea id="encoder-input" class="cyber-input" placeholder="Enter text or encoded data..."></textarea>
+                    </div>
+
+                    <!-- Action buttons -->
+                    <div class="action-buttons">
+                        <button id="encode-btn" class="cyber-btn primary">
+                            <span class="btn-text">ENCODE</span>
+                            <span class="btn-icon">&gt;&gt;</span>
+                        </button>
+                        <button id="decode-btn" class="cyber-btn secondary">
+                            <span class="btn-icon">&lt;&lt;</span>
+                            <span class="btn-text">DECODE</span>
+                        </button>
+                        <button id="clear-btn" class="cyber-btn tertiary">
+                            <span class="btn-text">CLEAR</span>
+                        </button>
+                    </div>
+
+                    <!-- Output area -->
+                    <div class="output-group">
+                        <label class="output-label">// OUTPUT DATA</label>
+                        <div id="encoder-output" class="cyber-output">
+                            <span class="output-placeholder">Awaiting input...</span>
+                        </div>
+                        <button id="copy-btn" class="copy-btn hidden">
+                            <span class="copy-text">COPY TO BUFFER</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Hacking Game Section -->
+            <section id="hacking-game-section" class="tool-section hidden">
+                <div class="section-header">
+                    <h2 class="section-title">BREACH PROTOCOL</h2>
+                    <span class="section-subtitle">// ICE penetration sequence</span>
+                </div>
+
+                <div class="hacking-container">
+                    <!-- Game status -->
+                    <div class="game-status">
+                        <div class="status-item">
+                            <span class="status-label">BUFFER</span>
+                            <div id="buffer-display" class="buffer-display">
+                                <span class="buffer-slot empty"></span>
+                                <span class="buffer-slot empty"></span>
+                                <span class="buffer-slot empty"></span>
+                                <span class="buffer-slot empty"></span>
+                                <span class="buffer-slot empty"></span>
+                                <span class="buffer-slot empty"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Game area -->
+                    <div class="game-area">
+                        <!-- Code Matrix -->
+                        <div class="matrix-panel">
+                            <div class="panel-header">CODE MATRIX</div>
+                            <div id="code-matrix" class="code-matrix">
+                                <!-- Generated by JS -->
+                            </div>
+                            <div id="selection-indicator" class="selection-indicator">
+                                <span class="indicator-text">SELECT ROW</span>
+                            </div>
+                        </div>
+
+                        <!-- Sequences to hack -->
+                        <div class="sequences-panel">
+                            <div class="panel-header">SEQUENCE REQUIRED</div>
+                            <div id="daemon-list" class="daemon-list">
+                                <!-- Generated by JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Game controls -->
+                    <div class="game-controls">
+                        <button id="new-game-btn" class="cyber-btn primary">
+                            <span class="btn-text">NEW BREACH</span>
+                        </button>
+                        <button id="reset-btn" class="cyber-btn secondary">
+                            <span class="btn-text">RESET</span>
+                        </button>
+                    </div>
+
+                    <!-- Game result overlay -->
+                    <div id="game-result" class="game-result hidden">
+                        <div class="result-content">
+                            <div id="result-icon" class="result-icon"></div>
+                            <div id="result-title" class="result-title"></div>
+                            <div id="result-message" class="result-message"></div>
+                            <button id="result-btn" class="cyber-btn primary">
+                                <span class="btn-text">TRY AGAIN</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script src="js/main.js"></script>
+    <script src="js/encoder.js"></script>
+    <script src="js/hacking-game.js"></script>
+</body>
+</html>
