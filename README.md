@@ -36,6 +36,13 @@ Classic cryptography toolkit for RPG puzzles:
 - **Atbash** - Reversed alphabet (A↔Z)
 - **Substitution** - Custom alphabet replacement
 
+### Spectrogram Analyzer
+Audio frequency visualization to reveal hidden images in sound:
+- Upload WAV / MP3 / OGG files
+- FFT sizes: 1024, 2048, 4096, 8192
+- Color schemes: Cyber, Heat, Grayscale
+- Export as PNG
+
 ## Project Structure
 
 ```
@@ -45,7 +52,10 @@ Classic cryptography toolkit for RPG puzzles:
 │   ├── main.js         # Navigation
 │   ├── encoder.js      # Encoder/decoder logic
 │   ├── hacking-game.js # Breach Protocol game
-│   └── cipher.js       # Cipher decoder logic
+│   ├── cipher.js       # Cipher decoder logic
+│   ├── spectrogram.js  # Spectrogram analyzer
+│   └── lib/
+│       └── fft.js      # FFT library
 ├── Dockerfile
 └── docker-compose.yaml
 ```

@@ -64,6 +64,11 @@
                     <span class="option-name">CIPHER DECODER</span>
                     <span class="option-desc">Classic cryptography toolkit</span>
                 </button>
+                <button class="menu-option" data-section="spectrogram">
+                    <span class="option-icon">[04]</span>
+                    <span class="option-name">SPECTROGRAM</span>
+                    <span class="option-desc">Audio frequency analyzer</span>
+                </button>
             </div>
             <div class="menu-footer">
                 <span class="footer-text">// SUBNET DETECTED</span>
@@ -276,12 +281,90 @@
                     </div>
                 </div>
             </section>
+
+            <!-- Spectrogram Analyzer Section -->
+            <section id="spectrogram-section" class="tool-section hidden">
+                <div class="section-header">
+                    <h2 class="section-title">SPECTROGRAM ANALYZER</h2>
+                    <span class="section-subtitle">// Audio frequency visualization</span>
+                </div>
+
+                <div class="spectrogram-container">
+                    <!-- File upload -->
+                    <div class="upload-group">
+                        <label class="input-label">// AUDIO FILE</label>
+                        <div class="upload-area" id="upload-area">
+                            <input type="file" id="audio-file" accept="audio/*" hidden>
+                            <span class="upload-text">DROP AUDIO FILE OR CLICK TO SELECT</span>
+                            <span class="upload-formats">WAV / MP3 / OGG</span>
+                        </div>
+                        <div id="file-info" class="file-info hidden">
+                            <span id="file-name" class="file-name"></span>
+                            <button id="clear-file-btn" class="clear-file-btn">&times;</button>
+                        </div>
+                    </div>
+
+                    <!-- Controls -->
+                    <div class="spectrogram-controls">
+                        <div class="control-group">
+                            <label class="input-label">// FFT SIZE</label>
+                            <select id="fft-size" class="cyber-select">
+                                <option value="1024">1024</option>
+                                <option value="2048" selected>2048</option>
+                                <option value="4096">4096</option>
+                                <option value="8192">8192</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label class="input-label">// COLOR SCHEME</label>
+                            <select id="color-scheme" class="cyber-select">
+                                <option value="cyber" selected>CYBER</option>
+                                <option value="heat">HEAT</option>
+                                <option value="grayscale">GRAYSCALE</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Action buttons -->
+                    <div class="action-buttons">
+                        <button id="analyze-btn" class="cyber-btn primary" disabled>
+                            <span class="btn-text">ANALYZE</span>
+                            <span class="btn-icon">&gt;&gt;</span>
+                        </button>
+                        <button id="export-btn" class="cyber-btn secondary" disabled>
+                            <span class="btn-text">EXPORT PNG</span>
+                        </button>
+                    </div>
+
+                    <!-- Progress -->
+                    <div id="progress-container" class="progress-container hidden">
+                        <div class="progress-bar">
+                            <div id="progress-fill" class="progress-fill"></div>
+                        </div>
+                        <span id="progress-text" class="progress-text">Processing...</span>
+                    </div>
+
+                    <!-- Canvas output -->
+                    <div class="canvas-group">
+                        <label class="output-label">// FREQUENCY ANALYSIS</label>
+                        <div class="canvas-wrapper">
+                            <canvas id="spectrogram-canvas"></canvas>
+                        </div>
+                        <div class="canvas-info">
+                            <span class="info-freq">Freq: 0 - 22kHz</span>
+                            <span id="info-duration" class="info-duration">Duration: --</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
         </div>
     </main>
 
+    <script src="js/lib/fft.js"></script>
     <script src="js/main.js"></script>
     <script src="js/encoder.js"></script>
     <script src="js/hacking-game.js"></script>
     <script src="js/cipher.js"></script>
+    <script src="js/spectrogram.js"></script>
 </body>
 </html>

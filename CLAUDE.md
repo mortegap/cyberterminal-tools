@@ -13,7 +13,10 @@ cyberterminal-tools/
 │   ├── main.js             # Navigation and boot sequence
 │   ├── encoder.js          # Binary/Hex encoder-decoder tool
 │   ├── hacking-game.js     # Breach Protocol minigame
-│   └── cipher.js           # Classic cryptography toolkit
+│   ├── cipher.js           # Classic cryptography toolkit
+│   ├── spectrogram.js      # Audio spectrogram analyzer
+│   └── lib/
+│       └── fft.js          # FFT library for spectrogram
 ├── Dockerfile              # nginx-based container
 └── docker-compose.yaml     # Container orchestration
 ```
@@ -45,6 +48,14 @@ Classic cryptography toolkit for Cyberpunk RED RPG puzzles:
 - **Vigenère**: Polyalphabetic cipher with keyword
 - **Atbash**: Reversed alphabet (A↔Z, B↔Y...)
 - **Substitution**: Custom 26-letter alphabet replacement
+
+### Spectrogram Analyzer
+Audio frequency visualization tool for revealing hidden images in sound files:
+- Upload audio files (WAV/MP3/OGG)
+- Configurable FFT sizes (1024, 2048, 4096, 8192)
+- Three color schemes: Cyber, Heat, Grayscale
+- Export spectrogram as PNG
+- Uses Web Audio API + FFT.js library
 
 ## Tech Stack
 
