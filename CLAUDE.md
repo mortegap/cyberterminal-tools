@@ -12,7 +12,8 @@ cyberterminal-tools/
 ├── js/
 │   ├── main.js             # Navigation and boot sequence
 │   ├── encoder.js          # Binary/Hex encoder-decoder tool
-│   └── hacking-game.js     # Breach Protocol minigame
+│   ├── hacking-game.js     # Breach Protocol minigame
+│   └── cipher.js           # Classic cryptography toolkit
 ├── Dockerfile              # nginx-based container
 └── docker-compose.yaml     # Container orchestration
 ```
@@ -37,6 +38,13 @@ Access at `http://localhost:8080`
 - 6-slot buffer for selections
 - 3 daemon sequences to complete
 - Alternating row/column selection (like Cyberpunk 2077)
+
+### Cipher Decoder
+Classic cryptography toolkit for Cyberpunk RED RPG puzzles:
+- **Caesar**: Rotate letters by N positions (key: 1-25)
+- **Vigenère**: Polyalphabetic cipher with keyword
+- **Atbash**: Reversed alphabet (A↔Z, B↔Y...)
+- **Substitution**: Custom 26-letter alphabet replacement
 
 ## Tech Stack
 

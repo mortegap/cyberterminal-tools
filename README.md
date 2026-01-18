@@ -29,6 +29,13 @@ Hacking minigame inspired by Cyberpunk 2077:
 - 3 daemon sequences to complete
 - Alternating row/column selection
 
+### Cipher Decoder
+Classic cryptography toolkit for RPG puzzles:
+- **Caesar** - Shift letters by N positions
+- **Vigenère** - Polyalphabetic cipher with keyword
+- **Atbash** - Reversed alphabet (A↔Z)
+- **Substitution** - Custom alphabet replacement
+
 ## Project Structure
 
 ```
@@ -37,7 +44,8 @@ Hacking minigame inspired by Cyberpunk 2077:
 ├── js/
 │   ├── main.js         # Navigation
 │   ├── encoder.js      # Encoder/decoder logic
-│   └── hacking-game.js # Breach Protocol game
+│   ├── hacking-game.js # Breach Protocol game
+│   └── cipher.js       # Cipher decoder logic
 ├── Dockerfile
 └── docker-compose.yaml
 ```

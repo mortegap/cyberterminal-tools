@@ -51,7 +51,7 @@
             <div class="menu-options">
                 <button class="menu-option" data-section="encoder">
                     <span class="option-icon">[01]</span>
-                    <span class="option-name">DATA ENCODER</span>
+                    <span class="option-name">DATA DECODER</span>
                     <span class="option-desc">Binary/Hex/Base64/ASCII85 conversion</span>
                 </button>
                 <button class="menu-option" data-section="hacking-game">
@@ -59,9 +59,14 @@
                     <span class="option-name">BREACH PROTOCOL</span>
                     <span class="option-desc">ICE breaker minigame</span>
                 </button>
+                <button class="menu-option" data-section="cipher">
+                    <span class="option-icon">[03]</span>
+                    <span class="option-name">CIPHER DECODER</span>
+                    <span class="option-desc">Classic cryptography toolkit</span>
+                </button>
             </div>
             <div class="menu-footer">
-                <span class="footer-text">// ARASAKA SUBNET DETECTED</span>
+                <span class="footer-text">// SUBNET DETECTED</span>
             </div>
         </nav>
 
@@ -203,11 +208,80 @@
                     </div>
                 </div>
             </section>
+
+            <!-- Cipher Decoder Section -->
+            <section id="cipher-section" class="tool-section hidden">
+                <div class="section-header">
+                    <h2 class="section-title">CIPHER DECODER</h2>
+                    <span class="section-subtitle">// Classic cryptography toolkit</span>
+                </div>
+
+                <div class="cipher-container">
+                    <!-- Method selector -->
+                    <div class="mode-selector">
+                        <button class="mode-btn active" data-cipher="caesar">
+                            <span class="mode-icon">+N</span>
+                            <span class="mode-name">CAESAR</span>
+                        </button>
+                        <button class="mode-btn" data-cipher="vigenere">
+                            <span class="mode-icon">KEY</span>
+                            <span class="mode-name">VIGENÈRE</span>
+                        </button>
+                        <button class="mode-btn" data-cipher="atbash">
+                            <span class="mode-icon">A↔Z</span>
+                            <span class="mode-name">ATBASH</span>
+                        </button>
+                        <button class="mode-btn" data-cipher="substitution">
+                            <span class="mode-icon">ABC</span>
+                            <span class="mode-name">SUBSTITUTION</span>
+                        </button>
+                    </div>
+
+                    <!-- Key input -->
+                    <div class="input-group">
+                        <label id="cipher-key-label" class="input-label">// SHIFT KEY (1-25)</label>
+                        <input type="text" id="cipher-key" class="cyber-input cipher-key-input" placeholder="Enter shift number...">
+                    </div>
+
+                    <!-- Input area -->
+                    <div class="input-group">
+                        <label class="input-label">// INPUT MESSAGE</label>
+                        <textarea id="cipher-input" class="cyber-input" placeholder="Enter message to encrypt/decrypt..."></textarea>
+                    </div>
+
+                    <!-- Action buttons -->
+                    <div class="action-buttons">
+                        <button id="encrypt-btn" class="cyber-btn primary">
+                            <span class="btn-text">ENCRYPT</span>
+                            <span class="btn-icon">&gt;&gt;</span>
+                        </button>
+                        <button id="decrypt-btn" class="cyber-btn secondary">
+                            <span class="btn-icon">&lt;&lt;</span>
+                            <span class="btn-text">DECRYPT</span>
+                        </button>
+                        <button id="cipher-clear-btn" class="cyber-btn tertiary">
+                            <span class="btn-text">CLEAR</span>
+                        </button>
+                    </div>
+
+                    <!-- Output area -->
+                    <div class="output-group">
+                        <label class="output-label">// OUTPUT</label>
+                        <div id="cipher-output" class="cyber-output">
+                            <span class="output-placeholder">Awaiting input...</span>
+                        </div>
+                        <button id="cipher-copy-btn" class="copy-btn hidden">
+                            <span class="copy-text">COPY TO BUFFER</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
         </div>
     </main>
 
     <script src="js/main.js"></script>
     <script src="js/encoder.js"></script>
     <script src="js/hacking-game.js"></script>
+    <script src="js/cipher.js"></script>
 </body>
 </html>

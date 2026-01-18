@@ -17,7 +17,8 @@
     // Sections
     const sections = {
         'encoder': document.getElementById('encoder-section'),
-        'hacking-game': document.getElementById('hacking-game-section')
+        'hacking-game': document.getElementById('hacking-game-section'),
+        'cipher': document.getElementById('cipher-section')
     };
 
     // Boot sequence duration (matches CSS animation)
