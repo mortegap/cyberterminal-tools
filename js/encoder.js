@@ -351,21 +351,18 @@
             return;
         }
 
-        try {
-            await navigator.clipboard.writeText(outputText);
+        const ok = await Utils.copyText(outputText);
+        if (!ok) return;
 
-            // Visual feedback
-            const originalText = copyBtn.querySelector('.copy-text').textContent;
-            copyBtn.querySelector('.copy-text').textContent = 'COPIED!';
-            copyBtn.classList.add('copied');
+        // Visual feedback
+        const originalText = copyBtn.querySelector('.copy-text').textContent;
+        copyBtn.querySelector('.copy-text').textContent = 'COPIED!';
+        copyBtn.classList.add('copied');
 
-            setTimeout(() => {
-                copyBtn.querySelector('.copy-text').textContent = originalText;
-                copyBtn.classList.remove('copied');
-            }, 2000);
-        } catch (error) {
-            console.error('Failed to copy:', error);
-        }
+        setTimeout(() => {
+            copyBtn.querySelector('.copy-text').textContent = originalText;
+            copyBtn.classList.remove('copied');
+        }, 2000);
     }
 
     /**

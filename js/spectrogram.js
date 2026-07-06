@@ -25,6 +25,7 @@
     // State
     let audioBuffer = null;
     let currentFile = null;
+    let lastSpectrogram = null;
 
     // Audio context (created on first user interaction)
     let audioContext = null;
@@ -321,7 +322,11 @@
 
         // Validate file type
         if (!file.type.startsWith('audio/')) {
-            alert('Please select a valid audio file (WAV, MP3, OGG)');
+            Modal.alert({
+                title: 'INVALID FILE',
+                message: 'Please select a valid audio file (WAV, MP3, OGG).',
+                tone: 'error'
+            });
             return;
         }
 
@@ -346,6 +351,7 @@
     function clearFile() {
         currentFile = null;
         audioBuffer = null;
+        lastSpectrogram = null;
         fileName.textContent = '';
         fileInfo.classList.add('hidden');
         uploadArea.classList.remove('hidden');
@@ -383,6 +389,7 @@
             const spectrogram = computeSpectrogram(audioBuffer, fftSize, (p) => {
                 updateProgress(15 + p * 70, `Processing... ${Math.floor(p * 100)}%`);
             });
+            lastSpectrogram = spectrogram;
 
             // Render to canvas
             updateProgress(90, 'Rendering...');
@@ -405,7 +412,11 @@
 
         } catch (error) {
             console.error('Analysis error:', error);
-            alert('Error analyzing audio: ' + error.message);
+            Modal.alert({
+                title: 'ANALYZER ERROR',
+                message: 'Error analyzing audio: ' + error.message,
+                tone: 'error'
+            });
             showProgress(false);
             analyzeBtn.disabled = false;
         }
@@ -461,10 +472,10 @@
         // Export button
         exportBtn.addEventListener('click', exportImage);
 
-        // Re-render on color scheme change (if we have data)
+        // Re-render cached data on color scheme change, no FFT recompute
         colorSchemeSelect.addEventListener('change', () => {
-            if (audioBuffer && canvas.width > 0) {
-                analyzeAudio();
+            if (lastSpectrogram && canvas.width > 0) {
+                renderSpectrogram(lastSpectrogram, canvas, colorSchemeSelect.value);
             }
         });
     }

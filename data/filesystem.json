@@ -1,0 +1,64 @@
+{
+    "defaultHost": "street-node",
+    "hosts": {
+        "street-node": {
+            "motd": "WATSON STREET NODE // public access point // no ICE detected",
+            "root": {
+                "type": "dir",
+                "children": {
+                    "readme.txt": {
+                        "type": "file",
+                        "content": "Public relay node. Nothing valuable here, choom.\n\nRumor: someone opened a backdoor into a militech relay on this subnet.\nRun 'scan' to see what is in range."
+                    },
+                    "contacts.txt": {
+                        "type": "file",
+                        "content": "WILDSIDE  - fixer, Watson district\nVIK       - ripperdoc, discount for referrals\nNO-TRACE  - ???  (encrypted burst transmissions only)"
+                    },
+                    "jobs": {
+                        "type": "dir",
+                        "children": {
+                            "gig_warehouse77.txt": {
+                                "type": "file",
+                                "content": "GIG: WAREHOUSE 77 RECON\nClient: Wildside\nTarget: Militech logistics node\n\nNotes: their comms are Vigenere-encrypted. Word is the op\nkeyword is the project name: TRAUMA. Decrypt anything you pull."
+                            }
+                        }
+                    },
+                    "vault": {
+                        "type": "dir",
+                        "locked": true,
+                        "password": "wetwork",
+                        "children": {
+                            "stash.txt": {
+                                "type": "file",
+                                "content": "2x flash drives (empty)\n1x Militech Crusher (serial filed off)\n500 eddies in scrip\n\nDon't touch the eddies. - R"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "militech-relay": {
+            "locked": true,
+            "password": "blackwall",
+            "motd": "MILITECH LOGISTICS RELAY 07 // AUTHORIZED PERSONNEL ONLY // intrusion countermeasures active",
+            "root": {
+                "type": "dir",
+                "children": {
+                    "orders.enc": {
+                        "type": "file",
+                        "content": "LYIJYEGK ALDIOVS XACD WOOD MBUNCSHM"
+                    },
+                    "personnel": {
+                        "type": "dir",
+                        "children": {
+                            "roster.txt": {
+                                "type": "file",
+                                "content": "SHIFT ROSTER - WAREHOUSE 77\n\nNight shift: 2x guards, 1x netrunner on call\nCameras: WATCHDOG system, east door coverage intermittent"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

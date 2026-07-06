@@ -76,24 +76,57 @@
     }
 
     /**
-     * Generate daemon sequences that are solvable within the matrix
+     * Walk a random valid path through the matrix following the
+     * alternating row/column rule, starting from the top row
+     * @param {string[][]} matrix - The code matrix
+     * @returns {string[]} Codes along the path
+     */
+    function generateSolutionPath(matrix) {
+        const used = new Set();
+        const codes = [];
+        let isRowSelection = true;
+        let row = 0;
+        let col = 0;
+
+        for (let i = 0; i < CONFIG.BUFFER_SIZE; i++) {
+            const candidates = [];
+            for (let j = 0; j < CONFIG.GRID_SIZE; j++) {
+                const r = isRowSelection ? row : j;
+                const c = isRowSelection ? j : col;
+                if (!used.has(`${r},${c}`)) {
+                    candidates.push({ r, c });
+                }
+            }
+            const pick = candidates[Math.floor(Math.random() * candidates.length)];
+            used.add(`${pick.r},${pick.c}`);
+            codes.push(matrix[pick.r][pick.c]);
+            row = pick.r;
+            col = pick.c;
+            isRowSelection = !isRowSelection;
+        }
+
+        return codes;
+    }
+
+    /**
+     * Generate daemon sequences sliced from a solution path,
+     * guaranteeing the puzzle is solvable within the buffer
+     * @param {string[]} pathCodes - Codes along a valid path
      * @returns {Object[]} Array of daemon objects with sequences
      */
-    function generateDaemons() {
-        const daemons = [];
+    function generateDaemons(pathCodes) {
         const names = ['DATAMINE_V1', 'DATAMINE_V2', 'DATAMINE_V3'];
+        const daemons = [];
+        let start = 0;
 
         for (let i = 0; i < CONFIG.DAEMON_COUNT; i++) {
             const length = CONFIG.SEQUENCE_LENGTHS[i];
-            const sequence = [];
-
-            for (let j = 0; j < length; j++) {
-                sequence.push(getRandomHex());
-            }
+            const sliceStart = Math.min(start, CONFIG.BUFFER_SIZE - length);
+            start = sliceStart + length;
 
             daemons.push({
                 name: names[i],
-                sequence: sequence,
+                sequence: pathCodes.slice(sliceStart, sliceStart + length),
                 matched: 0,
                 completed: false,
                 failed: false
@@ -262,7 +295,7 @@
         gameState.isRowSelection = !gameState.isRowSelection;
 
         // Check daemon progress
-        updateDaemonProgress(code);
+        updateDaemons();
 
         // Re-render
         renderMatrix();
@@ -275,50 +308,57 @@
     }
 
     /**
-     * Update daemon sequence matching progress
-     * @param {string} code - The selected code
+     * Compute exact matching state of a daemon against the buffer
+     * @param {string[]} sequence - Daemon sequence
+     * @param {string[]} buffer - Current buffer contents
+     * @returns {Object} Matching state
      */
-    function updateDaemonProgress(code) {
+    function computeDaemonState(sequence, buffer) {
+        // Completed if sequence appears as a contiguous run anywhere
+        for (let s = 0; s + sequence.length <= buffer.length; s++) {
+            let found = true;
+            for (let k = 0; k < sequence.length; k++) {
+                if (buffer[s + k] !== sequence[k]) {
+                    found = false;
+                    break;
+                }
+            }
+            if (found) {
+                return { completed: true, matched: sequence.length, failed: false };
+            }
+        }
+
+        // Progress is the longest sequence prefix that is a buffer suffix
+        let matched = 0;
+        const maxK = Math.min(sequence.length - 1, buffer.length);
+        for (let k = maxK; k > 0; k--) {
+            let match = true;
+            for (let j = 0; j < k; j++) {
+                if (buffer[buffer.length - k + j] !== sequence[j]) {
+                    match = false;
+                    break;
+                }
+            }
+            if (match) {
+                matched = k;
+                break;
+            }
+        }
+
+        const remaining = CONFIG.BUFFER_SIZE - buffer.length;
+        const failed = matched + remaining < sequence.length;
+        return { completed: false, matched: matched, failed: failed };
+    }
+
+    /**
+     * Recompute matching state for all daemons
+     */
+    function updateDaemons() {
         gameState.daemons.forEach(daemon => {
-            if (daemon.completed || daemon.failed) return;
-
-            const expectedCode = daemon.sequence[daemon.matched];
-
-            if (code === expectedCode) {
-                daemon.matched++;
-                if (daemon.matched === daemon.sequence.length) {
-                    daemon.completed = true;
-                }
-            } else {
-                // Check if sequence can still be completed
-                // Reset matching if wrong code selected
-                if (daemon.matched > 0 && code !== daemon.sequence[0]) {
-                    // Check remaining buffer space
-                    const remainingBuffer = CONFIG.BUFFER_SIZE - gameState.buffer.length;
-                    const remainingSequence = daemon.sequence.length;
-
-                    if (remainingBuffer < remainingSequence) {
-                        daemon.failed = true;
-                    } else {
-                        // Reset and start fresh if this code matches first
-                        if (code === daemon.sequence[0]) {
-                            daemon.matched = 1;
-                        } else {
-                            daemon.matched = 0;
-                        }
-                    }
-                } else if (code === daemon.sequence[0]) {
-                    daemon.matched = 1;
-                }
-            }
-
-            // Check if daemon can still be completed
-            const remainingBuffer = CONFIG.BUFFER_SIZE - gameState.buffer.length;
-            const remainingSequence = daemon.sequence.length - daemon.matched;
-
-            if (remainingBuffer < remainingSequence && !daemon.completed) {
-                daemon.failed = true;
-            }
+            const state = computeDaemonState(daemon.sequence, gameState.buffer);
+            daemon.completed = state.completed;
+            daemon.matched = state.matched;
+            daemon.failed = state.failed;
         });
     }
 
@@ -410,7 +450,8 @@
      */
     function newGame() {
         gameState.matrix = generateMatrix();
-        gameState.daemons = generateDaemons();
+        const pathCodes = generateSolutionPath(gameState.matrix);
+        gameState.daemons = generateDaemons(pathCodes);
         resetGame();
     }
 

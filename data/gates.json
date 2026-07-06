@@ -1,0 +1,22 @@
+{
+    "targets": [
+        {
+            "id": "biotechnica-mail",
+            "name": "BIOTECHNICA MAIL RELAY",
+            "hint": "Vasquez keys her personal comms with someone she loves. Check the databank.",
+            "password": "silvia",
+            "maxAttempts": 5,
+            "lockoutSeconds": 120,
+            "reward": "MAILBOX DECRYPTED.\n\nOne flagged thread: dossier attachments protected with access code NC-441.\nUse it on redacted databank sections."
+        },
+        {
+            "id": "watchdog-cams",
+            "name": "WATCHDOG CAMERA GRID",
+            "hint": "The system answers to its own name.",
+            "password": "watchdog",
+            "maxAttempts": 3,
+            "lockoutSeconds": 90,
+            "reward": "CAMERA LOOP UPLOADED.\n\nThe east door of Warehouse 77 is blind for the next 10 minutes."
+        }
+    ]
+}

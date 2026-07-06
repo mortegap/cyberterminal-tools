@@ -1,0 +1,48 @@
+{
+    "records": [
+        {
+            "id": "npc-vasquez",
+            "type": "NPC",
+            "name": "Elena Vasquez",
+            "alias": "The Quartermaster",
+            "tags": ["militech", "exec", "warehouse77"],
+            "fields": {
+                "AFFILIATION": "Militech, logistics division",
+                "ROLE": "Regional shipping executive",
+                "FAMILY": "One daughter, Silvia (boarding school, badlands)",
+                "THREAT": "Corporate resources, private security detail"
+            },
+            "body": "Vasquez runs every gray shipment that moves through Watson. Officially she signs manifests, unofficially she signs off on things that never appear on them.\n\nKnown to key her personal comms through a Biotechnica mail relay she trusts more than her own corp.\n\nSafehouse location: {{redacted:safehouse}}",
+            "redacted": {
+                "safehouse": {
+                    "code": "NC-441",
+                    "content": "Charter Hill, Skyline Tower, apt 2207. Two bodyguards, rotating 12h shifts."
+                }
+            }
+        },
+        {
+            "id": "corp-militech",
+            "type": "CORP",
+            "name": "Militech",
+            "tags": ["corp", "military", "weapons"],
+            "fields": {
+                "SECTOR": "Arms, private military contracting",
+                "PRESENCE": "Heavy in Watson docks",
+                "ICE PROFILE": "Wisp patrols, Hellhound attack daemons on core nodes"
+            },
+            "body": "Standard advice applies: do not get caught. Militech response teams average four minutes in Watson.\n\nWarehouse 77 is their least defended logistics node, which still means armed guards and a live netrunner on call."
+        },
+        {
+            "id": "gig-warehouse77",
+            "type": "GIG",
+            "name": "Warehouse 77 Recon",
+            "tags": ["wildside", "active", "warehouse77"],
+            "fields": {
+                "CLIENT": "Wildside",
+                "PAYOUT": "500eb per operator, bonus for the black box",
+                "DEADLINE": "Transit day"
+            },
+            "body": "Find out what Militech is really moving through Warehouse 77.\n\nLeads:\n- The relay host on this subnet carries their orders (encrypted)\n- A pirate broadcast on the old FM band mentions a backdoor\n- The camera system is called WATCHDOG"
+        }
+    ]
+}

@@ -1,0 +1,32 @@
+{
+    "band": {
+        "min": 88.0,
+        "max": 108.0,
+        "step": 0.1,
+        "unit": "MHz"
+    },
+    "signals": [
+        {
+            "freq": 91.3,
+            "tolerance": 0.2,
+            "label": "ENCRYPTED BURST // NO-TRACE",
+            "type": "morse",
+            "text": "BLACKWALL",
+            "wpm": 10
+        },
+        {
+            "freq": 99.9,
+            "tolerance": 0.2,
+            "label": "CARRIER TONE // UNKNOWN ORIGIN",
+            "type": "tone",
+            "toneHz": 440
+        },
+        {
+            "freq": 104.5,
+            "tolerance": 0.3,
+            "label": "PIRATE BROADCAST",
+            "type": "audio",
+            "src": "data/audio/broadcast.mp3"
+        }
+    ]
+}

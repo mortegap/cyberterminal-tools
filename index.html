@@ -3,15 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#00f0ff">
     <title>EDGERUNNER TERMINAL v2.077</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="fonts/fonts.css">
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <!-- Scanline overlay -->
+    <!-- CRT overlays -->
     <div class="scanlines"></div>
+    <div class="crt-vignette"></div>
 
     <!-- Boot screen -->
     <div id="boot-screen" class="boot-screen">
@@ -26,6 +28,22 @@
             <div class="boot-progress">
                 <div class="boot-progress-bar"></div>
             </div>
+            <div class="boot-skip">// PRESS ANY KEY TO SKIP</div>
+        </div>
+    </div>
+
+    <!-- Operator login screen -->
+    <div id="login-screen" class="login-screen hidden">
+        <div class="login-box">
+            <div class="login-logo">EDGERUNNER</div>
+            <div class="login-label">// IDENTIFY YOURSELF, OPERATOR</div>
+            <input type="text" id="login-handle" class="cyber-input login-input" maxlength="16"
+                   placeholder="Enter your handle..." autocomplete="off" spellcheck="false">
+            <span id="login-error" class="login-error hidden"></span>
+            <button id="login-btn" class="cyber-btn primary login-btn">
+                <span class="btn-text">JACK IN</span>
+                <span class="btn-icon">&gt;&gt;</span>
+            </button>
         </div>
     </div>
 
@@ -38,6 +56,9 @@
                 <h1 class="header-title">EDGERUNNER TERMINAL</h1>
             </div>
             <div class="header-right">
+                <span id="operator-display" class="header-operator"></span>
+                <button id="comms-badge" class="header-badge hidden">MSG [0]</button>
+                <button id="mute-btn" class="header-mute">SND:ON</button>
                 <span class="header-status">CONNECTED</span>
                 <span class="header-version">v2.077</span>
             </div>
@@ -49,29 +70,81 @@
                 <span class="menu-label">// SELECT QUICKHACK</span>
             </div>
             <div class="menu-options">
-                <button class="menu-option" data-section="encoder">
-                    <span class="option-icon">[01]</span>
-                    <span class="option-name">DATA DECODER</span>
-                    <span class="option-desc">Binary/Hex/Base64/ASCII85 conversion</span>
-                </button>
+                <div class="menu-category">// NETRUNNING</div>
                 <button class="menu-option" data-section="hacking-game">
-                    <span class="option-icon">[02]</span>
+                    <span class="option-icon">[01]</span>
                     <span class="option-name">BREACH PROTOCOL</span>
                     <span class="option-desc">ICE breaker minigame</span>
                 </button>
-                <button class="menu-option" data-section="cipher">
+                <button class="menu-option" data-section="netarch">
+                    <span class="option-icon">[02]</span>
+                    <span class="option-name">NET ARCHITECTURE</span>
+                    <span class="option-desc">Architecture floor navigator</span>
+                </button>
+                <button class="menu-option" data-section="cli">
                     <span class="option-icon">[03]</span>
+                    <span class="option-name">NETLINK CLI</span>
+                    <span class="option-desc">Remote filesystem uplink</span>
+                </button>
+                <button class="menu-option" data-section="icebreaker">
+                    <span class="option-icon">[04]</span>
+                    <span class="option-name">ICEBREAKER</span>
+                    <span class="option-desc">Password gate intrusion kit</span>
+                </button>
+
+                <div class="menu-category">// DECRYPTION</div>
+                <button class="menu-option" data-section="encoder">
+                    <span class="option-icon">[05]</span>
+                    <span class="option-name">DATA DECODER</span>
+                    <span class="option-desc">Binary/Hex/Base64/ASCII85 conversion</span>
+                </button>
+                <button class="menu-option" data-section="cipher">
+                    <span class="option-icon">[06]</span>
                     <span class="option-name">CIPHER DECODER</span>
                     <span class="option-desc">Classic cryptography toolkit</span>
                 </button>
+                <button class="menu-option" data-section="morse">
+                    <span class="option-icon">[07]</span>
+                    <span class="option-name">MORSE TRANSCEIVER</span>
+                    <span class="option-desc">Morse code with audio playback</span>
+                </button>
+                <button class="menu-option" data-section="hasher">
+                    <span class="option-icon">[08]</span>
+                    <span class="option-name">HASH VALIDATOR</span>
+                    <span class="option-desc">SHA-256 digest and verification</span>
+                </button>
+
+                <div class="menu-category">// SIGNAL ANALYSIS</div>
                 <button class="menu-option" data-section="spectrogram">
-                    <span class="option-icon">[04]</span>
+                    <span class="option-icon">[09]</span>
                     <span class="option-name">SPECTROGRAM</span>
                     <span class="option-desc">Audio frequency analyzer</span>
                 </button>
+                <button class="menu-option" data-section="stego">
+                    <span class="option-icon">[10]</span>
+                    <span class="option-name">STEGANOGRAPHY</span>
+                    <span class="option-desc">Hidden payloads in images</span>
+                </button>
+                <button class="menu-option" data-section="signal">
+                    <span class="option-icon">[11]</span>
+                    <span class="option-name">SIGNAL TUNER</span>
+                    <span class="option-desc">Radio band scanner</span>
+                </button>
+
+                <div class="menu-category">// RECORDS</div>
+                <button class="menu-option" data-section="databank">
+                    <span class="option-icon">[12]</span>
+                    <span class="option-name">DATABANK</span>
+                    <span class="option-desc">Dossier and intel records</span>
+                </button>
+                <button class="menu-option" data-section="comms">
+                    <span class="option-icon">[13]</span>
+                    <span class="option-name">COMMS</span>
+                    <span class="option-desc">Transmission inbox</span>
+                </button>
             </div>
             <div class="menu-footer">
-                <span class="footer-text">// SUBNET DETECTED</span>
+                <span id="menu-motd" class="footer-text">// SUBNET DETECTED</span>
             </div>
         </nav>
 
@@ -91,7 +164,6 @@
                 </div>
 
                 <div class="encoder-container">
-                    <!-- Mode selector -->
                     <div class="mode-selector">
                         <button class="mode-btn active" data-mode="binary">
                             <span class="mode-icon">01</span>
@@ -111,13 +183,11 @@
                         </button>
                     </div>
 
-                    <!-- Input area -->
                     <div class="input-group">
                         <label class="input-label">// INPUT DATA</label>
                         <textarea id="encoder-input" class="cyber-input" placeholder="Enter text or encoded data..."></textarea>
                     </div>
 
-                    <!-- Action buttons -->
                     <div class="action-buttons">
                         <button id="encode-btn" class="cyber-btn primary">
                             <span class="btn-text">ENCODE</span>
@@ -132,7 +202,6 @@
                         </button>
                     </div>
 
-                    <!-- Output area -->
                     <div class="output-group">
                         <label class="output-label">// OUTPUT DATA</label>
                         <div id="encoder-output" class="cyber-output">
@@ -153,7 +222,6 @@
                 </div>
 
                 <div class="hacking-container">
-                    <!-- Game status -->
                     <div class="game-status">
                         <div class="status-item">
                             <span class="status-label">BUFFER</span>
@@ -168,29 +236,21 @@
                         </div>
                     </div>
 
-                    <!-- Game area -->
                     <div class="game-area">
-                        <!-- Code Matrix -->
                         <div class="matrix-panel">
                             <div class="panel-header">CODE MATRIX</div>
-                            <div id="code-matrix" class="code-matrix">
-                                <!-- Generated by JS -->
-                            </div>
+                            <div id="code-matrix" class="code-matrix"></div>
                             <div id="selection-indicator" class="selection-indicator">
                                 <span class="indicator-text">SELECT ROW</span>
                             </div>
                         </div>
 
-                        <!-- Sequences to hack -->
                         <div class="sequences-panel">
                             <div class="panel-header">SEQUENCE REQUIRED</div>
-                            <div id="daemon-list" class="daemon-list">
-                                <!-- Generated by JS -->
-                            </div>
+                            <div id="daemon-list" class="daemon-list"></div>
                         </div>
                     </div>
 
-                    <!-- Game controls -->
                     <div class="game-controls">
                         <button id="new-game-btn" class="cyber-btn primary">
                             <span class="btn-text">NEW BREACH</span>
@@ -200,7 +260,6 @@
                         </button>
                     </div>
 
-                    <!-- Game result overlay -->
                     <div id="game-result" class="game-result hidden">
                         <div class="result-content">
                             <div id="result-icon" class="result-icon"></div>
@@ -222,7 +281,6 @@
                 </div>
 
                 <div class="cipher-container">
-                    <!-- Method selector -->
                     <div class="mode-selector">
                         <button class="mode-btn active" data-cipher="caesar">
                             <span class="mode-icon">+N</span>
@@ -230,10 +288,10 @@
                         </button>
                         <button class="mode-btn" data-cipher="vigenere">
                             <span class="mode-icon">KEY</span>
-                            <span class="mode-name">VIGENÈRE</span>
+                            <span class="mode-name">VIGEN&Egrave;RE</span>
                         </button>
                         <button class="mode-btn" data-cipher="atbash">
-                            <span class="mode-icon">A↔Z</span>
+                            <span class="mode-icon">A&harr;Z</span>
                             <span class="mode-name">ATBASH</span>
                         </button>
                         <button class="mode-btn" data-cipher="substitution">
@@ -242,19 +300,16 @@
                         </button>
                     </div>
 
-                    <!-- Key input -->
                     <div class="input-group">
                         <label id="cipher-key-label" class="input-label">// SHIFT KEY (1-25)</label>
                         <input type="text" id="cipher-key" class="cyber-input cipher-key-input" placeholder="Enter shift number...">
                     </div>
 
-                    <!-- Input area -->
                     <div class="input-group">
                         <label class="input-label">// INPUT MESSAGE</label>
                         <textarea id="cipher-input" class="cyber-input" placeholder="Enter message to encrypt/decrypt..."></textarea>
                     </div>
 
-                    <!-- Action buttons -->
                     <div class="action-buttons">
                         <button id="encrypt-btn" class="cyber-btn primary">
                             <span class="btn-text">ENCRYPT</span>
@@ -264,12 +319,14 @@
                             <span class="btn-icon">&lt;&lt;</span>
                             <span class="btn-text">DECRYPT</span>
                         </button>
+                        <button id="freq-analyze-btn" class="cyber-btn secondary">
+                            <span class="btn-text">FREQUENCY ANALYSIS</span>
+                        </button>
                         <button id="cipher-clear-btn" class="cyber-btn tertiary">
                             <span class="btn-text">CLEAR</span>
                         </button>
                     </div>
 
-                    <!-- Output area -->
                     <div class="output-group">
                         <label class="output-label">// OUTPUT</label>
                         <div id="cipher-output" class="cyber-output">
@@ -279,6 +336,8 @@
                             <span class="copy-text">COPY TO BUFFER</span>
                         </button>
                     </div>
+
+                    <div id="freq-chart" class="freq-chart hidden"></div>
                 </div>
             </section>
 
@@ -290,7 +349,6 @@
                 </div>
 
                 <div class="spectrogram-container">
-                    <!-- File upload -->
                     <div class="upload-group">
                         <label class="input-label">// AUDIO FILE</label>
                         <div class="upload-area" id="upload-area">
@@ -304,7 +362,6 @@
                         </div>
                     </div>
 
-                    <!-- Controls -->
                     <div class="spectrogram-controls">
                         <div class="control-group">
                             <label class="input-label">// FFT SIZE</label>
@@ -325,7 +382,6 @@
                         </div>
                     </div>
 
-                    <!-- Action buttons -->
                     <div class="action-buttons">
                         <button id="analyze-btn" class="cyber-btn primary" disabled>
                             <span class="btn-text">ANALYZE</span>
@@ -336,7 +392,6 @@
                         </button>
                     </div>
 
-                    <!-- Progress -->
                     <div id="progress-container" class="progress-container hidden">
                         <div class="progress-bar">
                             <div id="progress-fill" class="progress-fill"></div>
@@ -344,7 +399,6 @@
                         <span id="progress-text" class="progress-text">Processing...</span>
                     </div>
 
-                    <!-- Canvas output -->
                     <div class="canvas-group">
                         <label class="output-label">// FREQUENCY ANALYSIS</label>
                         <div class="canvas-wrapper">
@@ -357,14 +411,322 @@
                     </div>
                 </div>
             </section>
+
+            <!-- NETLINK CLI Section -->
+            <section id="cli-section" class="tool-section hidden">
+                <div class="section-header">
+                    <h2 class="section-title">NETLINK CLI</h2>
+                    <span class="section-subtitle">// Remote filesystem uplink</span>
+                </div>
+
+                <div id="cli-terminal" class="cli-terminal">
+                    <div id="cli-output" class="cli-output"></div>
+                    <div class="cli-input-line">
+                        <span id="cli-prompt" class="cli-prompt">$</span>
+                        <input type="text" id="cli-input" class="cli-input" autocomplete="off" spellcheck="false">
+                    </div>
+                </div>
+            </section>
+
+            <!-- NET Architecture Section -->
+            <section id="netarch-section" class="tool-section hidden">
+                <div class="section-header">
+                    <h2 class="section-title">NET ARCHITECTURE</h2>
+                    <span class="section-subtitle">// Cyberpunk RED architecture navigator</span>
+                </div>
+
+                <div id="netarch-list" class="netarch-list"></div>
+
+                <div id="netarch-detail" class="netarch-detail hidden">
+                    <div class="netarch-toolbar">
+                        <button id="netarch-back" class="cyber-btn tertiary">
+                            <span class="btn-text">&lt; ARCHITECTURES</span>
+                        </button>
+                        <button id="netarch-reset" class="cyber-btn secondary">
+                            <span class="btn-text">RESET PROGRESS</span>
+                        </button>
+                    </div>
+                    <h3 id="netarch-title" class="netarch-title"></h3>
+                    <span id="netarch-subtitle" class="section-subtitle"></span>
+                    <div id="netarch-floors" class="netarch-floors"></div>
+                </div>
+            </section>
+
+            <!-- Databank Section -->
+            <section id="databank-section" class="tool-section hidden">
+                <div class="section-header">
+                    <h2 class="section-title">DATABANK</h2>
+                    <span class="section-subtitle">// Dossier and intel records</span>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">// SEARCH QUERY</label>
+                    <input type="text" id="databank-search" class="cyber-input databank-search"
+                           placeholder="Search records by name, alias, type or tag..." autocomplete="off">
+                </div>
+
+                <div class="databank-layout">
+                    <div id="databank-list" class="db-list"></div>
+                    <div id="databank-detail" class="db-detail hidden">
+                        <h3 class="db-name"></h3>
+                        <div class="db-meta"></div>
+                        <div class="db-fields"></div>
+                        <div class="db-body"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Steganography Section -->
+            <section id="stego-section" class="tool-section hidden">
+                <div class="section-header">
+                    <h2 class="section-title">STEGANOGRAPHY</h2>
+                    <span class="section-subtitle">// Hidden payloads in image pixel data</span>
+                </div>
+
+                <div class="encoder-container">
+                    <div class="mode-selector">
+                        <button class="mode-btn active" data-stego="extract">
+                            <span class="mode-icon">&lt;&lt;</span>
+                            <span class="mode-name">EXTRACT</span>
+                        </button>
+                        <button class="mode-btn" data-stego="embed">
+                            <span class="mode-icon">&gt;&gt;</span>
+                            <span class="mode-name">EMBED</span>
+                        </button>
+                    </div>
+
+                    <div class="upload-group">
+                        <label class="input-label">// CARRIER IMAGE</label>
+                        <div class="upload-area" id="stego-upload-area">
+                            <input type="file" id="stego-file" accept="image/*" hidden>
+                            <span class="upload-text">DROP IMAGE OR CLICK TO SELECT</span>
+                            <span class="upload-formats">PNG RECOMMENDED (LOSSLESS)</span>
+                        </div>
+                        <div id="stego-file-info" class="file-info hidden">
+                            <span id="stego-file-name" class="file-name"></span>
+                            <button id="stego-clear-btn" class="clear-file-btn">&times;</button>
+                        </div>
+                        <span id="stego-capacity" class="stego-capacity"></span>
+                    </div>
+
+                    <div id="stego-message-group" class="input-group hidden">
+                        <label class="input-label">// PAYLOAD MESSAGE</label>
+                        <textarea id="stego-message" class="cyber-input" placeholder="Message to hide inside the image..."></textarea>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button id="stego-action-btn" class="cyber-btn primary" disabled>
+                            <span class="btn-text">EXTRACT PAYLOAD</span>
+                        </button>
+                    </div>
+
+                    <div class="output-group">
+                        <label class="output-label">// RESULT</label>
+                        <div id="stego-output" class="cyber-output">
+                            <span class="output-placeholder">Awaiting carrier image...</span>
+                        </div>
+                        <button id="stego-copy-btn" class="copy-btn hidden">
+                            <span class="copy-text">COPY TO BUFFER</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Signal Tuner Section -->
+            <section id="signal-section" class="tool-section hidden">
+                <div class="section-header">
+                    <h2 class="section-title">SIGNAL TUNER</h2>
+                    <span class="section-subtitle">// Wideband receiver, sweep for hidden broadcasts</span>
+                </div>
+
+                <div class="signal-container">
+                    <div class="signal-readout">
+                        <span id="signal-freq-display" class="signal-freq">88.0 MHz</span>
+                        <span id="signal-band-info" class="signal-band"></span>
+                    </div>
+
+                    <div class="canvas-wrapper signal-canvas-wrapper">
+                        <canvas id="signal-canvas" width="800" height="160"></canvas>
+                    </div>
+
+                    <div class="signal-tuning">
+                        <button id="signal-fine-down" class="cyber-btn secondary signal-fine">
+                            <span class="btn-text">&lt;</span>
+                        </button>
+                        <input type="range" id="signal-slider" class="signal-slider"
+                               min="88" max="108" step="0.1" value="88">
+                        <button id="signal-fine-up" class="cyber-btn secondary signal-fine">
+                            <span class="btn-text">&gt;</span>
+                        </button>
+                    </div>
+
+                    <div class="signal-status">
+                        <div id="signal-meter" class="signal-meter"></div>
+                        <span id="signal-label" class="signal-label">// RECEIVER OFFLINE</span>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button id="signal-power" class="cyber-btn primary">
+                            <span class="btn-text">POWER: OFF</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Morse Transceiver Section -->
+            <section id="morse-section" class="tool-section hidden">
+                <div class="section-header">
+                    <h2 class="section-title">MORSE TRANSCEIVER</h2>
+                    <span class="section-subtitle">// Legacy signal encoding with audio playback</span>
+                </div>
+
+                <div class="encoder-container">
+                    <div class="input-group">
+                        <label class="input-label">// INPUT (TEXT OR MORSE)</label>
+                        <textarea id="morse-input" class="cyber-input" placeholder="Enter text, or morse code using . - and / between words..."></textarea>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button id="morse-to-btn" class="cyber-btn primary">
+                            <span class="btn-text">TO MORSE</span>
+                            <span class="btn-icon">&gt;&gt;</span>
+                        </button>
+                        <button id="morse-from-btn" class="cyber-btn secondary">
+                            <span class="btn-icon">&lt;&lt;</span>
+                            <span class="btn-text">FROM MORSE</span>
+                        </button>
+                        <div class="control-group morse-wpm-group">
+                            <select id="morse-wpm" class="cyber-select">
+                                <option value="8">8 WPM</option>
+                                <option value="12" selected>12 WPM</option>
+                                <option value="20">20 WPM</option>
+                            </select>
+                        </div>
+                        <button id="morse-play-btn" class="cyber-btn secondary" disabled>
+                            <span class="btn-text">PLAY</span>
+                        </button>
+                        <button id="morse-stop-btn" class="cyber-btn tertiary" disabled>
+                            <span class="btn-text">STOP</span>
+                        </button>
+                    </div>
+
+                    <div class="output-group">
+                        <label class="output-label">// OUTPUT</label>
+                        <div id="morse-output" class="cyber-output">
+                            <span class="output-placeholder">Awaiting input...</span>
+                        </div>
+                        <button id="morse-copy-btn" class="copy-btn hidden">
+                            <span class="copy-text">COPY TO BUFFER</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Hash Validator Section -->
+            <section id="hasher-section" class="tool-section hidden">
+                <div class="section-header">
+                    <h2 class="section-title">HASH VALIDATOR</h2>
+                    <span class="section-subtitle">// SHA-256 digest generation and verification</span>
+                </div>
+
+                <div class="encoder-container">
+                    <div class="input-group">
+                        <label class="input-label">// INPUT DATA</label>
+                        <textarea id="hasher-input" class="cyber-input" placeholder="Enter data to hash..."></textarea>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button id="hasher-btn" class="cyber-btn primary">
+                            <span class="btn-text">COMPUTE SHA-256</span>
+                            <span class="btn-icon">&gt;&gt;</span>
+                        </button>
+                    </div>
+
+                    <div class="output-group">
+                        <label class="output-label">// DIGEST</label>
+                        <div id="hasher-output" class="cyber-output hasher-output">
+                            <span class="output-placeholder">Awaiting input...</span>
+                        </div>
+                        <button id="hasher-copy-btn" class="copy-btn hidden">
+                            <span class="copy-text">COPY TO BUFFER</span>
+                        </button>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label">// EXPECTED DIGEST (OPTIONAL)</label>
+                        <input type="text" id="hasher-compare" class="cyber-input hasher-compare"
+                               placeholder="Paste an expected hash to verify..." autocomplete="off" spellcheck="false">
+                        <span id="hasher-match" class="hasher-match"></span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Icebreaker Section -->
+            <section id="icebreaker-section" class="tool-section hidden">
+                <div class="section-header">
+                    <h2 class="section-title">ICEBREAKER</h2>
+                    <span class="section-subtitle">// Password gate intrusion kit</span>
+                </div>
+
+                <div id="gate-list" class="gate-list"></div>
+
+                <div id="gate-detail" class="gate-detail hidden">
+                    <div class="netarch-toolbar">
+                        <button id="gate-back" class="cyber-btn tertiary">
+                            <span class="btn-text">&lt; TARGETS</span>
+                        </button>
+                    </div>
+                    <h3 class="gate-name netarch-title"></h3>
+                    <div class="gate-hint"></div>
+                    <div class="gate-status"></div>
+                    <div class="gate-input-row">
+                        <input type="text" class="cyber-input gate-password" placeholder="Enter passphrase..."
+                               autocomplete="off" spellcheck="false">
+                        <button id="gate-run" class="cyber-btn primary">
+                            <span class="btn-text">RUN ICEBREAKER</span>
+                        </button>
+                    </div>
+                    <div class="gate-progress hidden"></div>
+                    <div class="gate-reward hidden"></div>
+                </div>
+            </section>
+
+            <!-- Comms Section -->
+            <section id="comms-section" class="tool-section hidden">
+                <div class="section-header">
+                    <h2 class="section-title">COMMS</h2>
+                    <span class="section-subtitle">// Transmission inbox</span>
+                </div>
+
+                <div id="comms-list" class="comms-list"></div>
+
+                <div id="comms-detail" class="comms-detail hidden">
+                    <h3 class="comms-detail-subject"></h3>
+                    <div class="comms-detail-meta"></div>
+                    <div class="comms-detail-body"></div>
+                </div>
+            </section>
         </div>
     </main>
 
     <script src="js/lib/fft.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/sound.js"></script>
+    <script src="js/modal.js"></script>
+    <script src="js/data-loader.js"></script>
     <script src="js/main.js"></script>
     <script src="js/encoder.js"></script>
     <script src="js/hacking-game.js"></script>
     <script src="js/cipher.js"></script>
     <script src="js/spectrogram.js"></script>
+    <script src="js/cli.js"></script>
+    <script src="js/netarch.js"></script>
+    <script src="js/databank.js"></script>
+    <script src="js/stego.js"></script>
+    <script src="js/signal.js"></script>
+    <script src="js/morse.js"></script>
+    <script src="js/hasher.js"></script>
+    <script src="js/icebreaker.js"></script>
+    <script src="js/transmissions.js"></script>
 </body>
 </html>

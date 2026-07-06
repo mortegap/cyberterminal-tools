@@ -1,0 +1,22 @@
+{
+    "messages": [
+        {
+            "id": "msg-001",
+            "from": "FIXER//WILDSIDE",
+            "to": "all",
+            "subject": "Welcome to the network",
+            "body": "Terminal access confirmed, choombas.\n\nThis relay is your uplink for the job. Check the DATABANK for the target dossier and keep COMMS open. I will ping you when the window opens.\n\nStay frosty.\n- W",
+            "time": "2026-01-01T00:00:00Z",
+            "priority": "normal"
+        },
+        {
+            "id": "msg-002",
+            "from": "UNKNOWN//NO-TRACE",
+            "to": "all",
+            "subject": "They are listening",
+            "body": "Someone burned a backdoor into the militech-relay host.\n\nThe passphrase is hidden on the 91.3 band. Morse. Old school.\n\nDelete this after reading.",
+            "time": "2026-01-01T00:05:00Z",
+            "priority": "urgent"
+        }
+    ]
+}
