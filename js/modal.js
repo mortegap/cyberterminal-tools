@@ -99,7 +99,12 @@
         });
 
         overlay.classList.remove('hidden');
-        if (config.input) inputEl.focus();
+        if (config.input) {
+            inputEl.focus();
+        } else if (actionsEl.firstChild) {
+            // Focus the primary action so Enter/Space confirms from the keyboard
+            actionsEl.firstChild.focus();
+        }
 
         escHandler = (event) => {
             if (event.key === 'Escape') {

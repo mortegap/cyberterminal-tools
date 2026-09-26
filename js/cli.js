@@ -445,22 +445,32 @@
      * Called when the CLI section is opened
      */
     async function onEnter() {
-        if (!booted) {
-            fsData = await DataLoader.load('filesystem');
+        // Always refetch so GM edits made mid-session show up
+        const data = await DataLoader.load('filesystem', true);
 
-            if (!fsData || !fsData.hosts || !Object.keys(fsData.hosts).length) {
+        if (!data || !data.hosts || !Object.keys(data.hosts).length) {
+            if (!fsData) {
                 print('UPLINK ERROR // data/filesystem.json missing or invalid', 'cli-error');
-                booted = true;
                 return;
             }
+        } else {
+            fsData = data;
+        }
 
+        if (!booted) {
             host = fsData.defaultHost || Object.keys(fsData.hosts)[0];
             print(BANNER, 'cli-banner');
             print("NETLINK UPLINK v2.077 // type 'help' for commands");
             printMotd();
             booted = true;
-            updatePrompt();
+        } else if (!fsData.hosts[host] || !getNode(cwd)) {
+            // The GM removed the host or directory the player was in
+            host = fsData.defaultHost || Object.keys(fsData.hosts)[0];
+            cwd = [];
+            print('LINK RESET // remote topology changed', 'cli-error');
         }
+
+        updatePrompt();
         inputEl.focus();
     }
 

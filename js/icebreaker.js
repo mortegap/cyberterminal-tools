@@ -18,7 +18,6 @@
     let current = null;
     let cracking = false;
     let countdownTimer = null;
-    let loaded = false;
 
     /**
      * Persist gate state
@@ -163,6 +162,8 @@
         const attempt = input.value.trim();
         if (!attempt) return;
 
+        // Bind the attempt to this target: the player may navigate away mid-crack
+        const target = current;
         cracking = true;
         const progressEl = detailEl.querySelector('.gate-progress');
         progressEl.classList.remove('hidden');
@@ -180,19 +181,20 @@
         setTimeout(() => {
             clearInterval(spinner);
             cracking = false;
-            evaluate(attempt);
+            evaluate(target, attempt);
         }, CRACK_DURATION_MS);
     }
 
     /**
      * Evaluate a password attempt
+     * @param {Object} target - Gate definition the attempt was made on
      * @param {string} attempt - Entered password
      */
-    function evaluate(attempt) {
-        const ts = getState(current);
-        const maxAttempts = current.maxAttempts || 5;
+    function evaluate(target, attempt) {
+        const ts = getState(target);
+        const maxAttempts = target.maxAttempts || 5;
 
-        if (attempt.toLowerCase() === String(current.password).toLowerCase()) {
+        if (attempt.toLowerCase() === String(target.password).toLowerCase()) {
             ts.breached = true;
             saveState();
             if (window.Sound) Sound.confirm();
@@ -200,7 +202,7 @@
             ts.attemptsUsed++;
             if (ts.attemptsUsed >= maxAttempts) {
                 ts.attemptsUsed = 0;
-                ts.lockedUntil = Date.now() + (current.lockoutSeconds || 60) * 1000;
+                ts.lockedUntil = Date.now() + (target.lockoutSeconds || 60) * 1000;
                 if (window.Sound) Sound.alarm();
             } else {
                 if (window.Sound) Sound.error();
@@ -208,18 +210,19 @@
             saveState();
         }
 
-        renderDetail();
+        // Only redraw if the player is still looking at this target
+        if (current === target && !detailEl.classList.contains('hidden')) {
+            renderDetail();
+        }
     }
 
     /**
      * Called when the section is opened
      */
     async function onEnter() {
-        if (!loaded) {
-            const data = await DataLoader.load('gates');
-            targets = (data && data.targets) || [];
-            loaded = true;
-        }
+        // Always refetch so GM edits made mid-session show up
+        const data = await DataLoader.load('gates', true);
+        targets = ((data && data.targets) || []).filter(target => target && target.id);
         renderList();
     }
 

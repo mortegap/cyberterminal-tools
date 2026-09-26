@@ -222,17 +222,29 @@
                 </div>
 
                 <div class="hacking-container">
+                    <div id="breach-difficulty" class="mode-selector breach-difficulty">
+                        <button class="mode-btn" data-breach-difficulty="easy">
+                            <span class="mode-icon">&#9679;</span>
+                            <span class="mode-name">EASY</span>
+                        </button>
+                        <button class="mode-btn active" data-breach-difficulty="standard">
+                            <span class="mode-icon">&#9679;&#9679;</span>
+                            <span class="mode-name">STANDARD</span>
+                        </button>
+                        <button class="mode-btn" data-breach-difficulty="hard">
+                            <span class="mode-icon">&#9679;&#9679;&#9679;</span>
+                            <span class="mode-name">HARD</span>
+                        </button>
+                    </div>
+
                     <div class="game-status">
                         <div class="status-item">
                             <span class="status-label">BUFFER</span>
-                            <div id="buffer-display" class="buffer-display">
-                                <span class="buffer-slot empty"></span>
-                                <span class="buffer-slot empty"></span>
-                                <span class="buffer-slot empty"></span>
-                                <span class="buffer-slot empty"></span>
-                                <span class="buffer-slot empty"></span>
-                                <span class="buffer-slot empty"></span>
-                            </div>
+                            <div id="buffer-display" class="buffer-display"></div>
+                        </div>
+                        <div id="breach-timer-item" class="status-item breach-timer-item hidden">
+                            <span class="status-label">BREACH TIME</span>
+                            <span id="breach-timer" class="breach-timer idle">--</span>
                         </div>
                     </div>
 
@@ -265,6 +277,7 @@
                             <div id="result-icon" class="result-icon"></div>
                             <div id="result-title" class="result-title"></div>
                             <div id="result-message" class="result-message"></div>
+                            <div id="result-rewards" class="result-rewards hidden"></div>
                             <button id="result-btn" class="cyber-btn primary">
                                 <span class="btn-text">TRY AGAIN</span>
                             </button>
@@ -319,9 +332,18 @@
                             <span class="btn-icon">&lt;&lt;</span>
                             <span class="btn-text">DECRYPT</span>
                         </button>
+                        <button id="brute-force-btn" class="cyber-btn secondary">
+                            <span class="btn-text">BRUTE FORCE</span>
+                        </button>
                         <button id="freq-analyze-btn" class="cyber-btn secondary">
                             <span class="btn-text">FREQUENCY ANALYSIS</span>
                         </button>
+                        <div class="control-group freq-lang-group">
+                            <select id="freq-lang" class="cyber-select" aria-label="Reference language">
+                                <option value="en" selected>LANG: EN</option>
+                                <option value="es">LANG: ES</option>
+                            </select>
+                        </div>
                         <button id="cipher-clear-btn" class="cyber-btn tertiary">
                             <span class="btn-text">CLEAR</span>
                         </button>
@@ -351,7 +373,7 @@
                 <div class="spectrogram-container">
                     <div class="upload-group">
                         <label class="input-label">// AUDIO FILE</label>
-                        <div class="upload-area" id="upload-area">
+                        <div class="upload-area" id="upload-area" role="button" tabindex="0">
                             <input type="file" id="audio-file" accept="audio/*" hidden>
                             <span class="upload-text">DROP AUDIO FILE OR CLICK TO SELECT</span>
                             <span class="upload-formats">WAV / MP3 / OGG</span>
@@ -497,7 +519,7 @@
 
                     <div class="upload-group">
                         <label class="input-label">// CARRIER IMAGE</label>
-                        <div class="upload-area" id="stego-upload-area">
+                        <div class="upload-area" id="stego-upload-area" role="button" tabindex="0">
                             <input type="file" id="stego-file" accept="image/*" hidden>
                             <span class="upload-text">DROP IMAGE OR CLICK TO SELECT</span>
                             <span class="upload-formats">PNG RECOMMENDED (LOSSLESS)</span>

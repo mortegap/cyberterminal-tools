@@ -81,9 +81,17 @@
      */
     function typeText(el, text, options = {}) {
         const speed = options.speed || 10;
+
+        // Cancel a previous typing run on the same element so texts never interleave
+        if (el._typeCancel) el._typeCancel();
         el.textContent = '';
 
         return new Promise(resolve => {
+            if (!text) {
+                resolve();
+                return;
+            }
+
             let i = 0;
             const timer = setInterval(() => {
                 el.textContent += text.charAt(i);
@@ -92,15 +100,53 @@
                     Sound.keyTick();
                 }
                 if (i >= text.length) {
-                    clearInterval(timer);
-                    resolve();
+                    finish();
                 }
             }, speed);
+
+            function finish() {
+                clearInterval(timer);
+                el._typeCancel = null;
+                resolve();
+            }
+
+            el._typeCancel = finish;
         });
+    }
+
+    /**
+     * Scroll a detail panel into view when it renders below its list
+     * (single column mobile layout)
+     * @param {HTMLElement} el - Panel element
+     */
+    function revealOnMobile(el) {
+        if (window.matchMedia('(max-width: 767px)').matches) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }
+
+    /**
+     * Whether a picked file looks like the expected media kind. Some
+     * platforms report an empty or odd MIME type (e.g. video/ogg for .ogg),
+     * so fall back to the extension.
+     * @param {File} file - Picked file
+     * @param {string} kind - 'audio' or 'image'
+     * @returns {boolean}
+     */
+    function isFileKind(file, kind) {
+        if (file.type && file.type.startsWith(kind + '/')) return true;
+        const ext = (file.name.split('.').pop() || '').toLowerCase();
+        const known = {
+            audio: ['wav', 'mp3', 'ogg', 'oga', 'flac', 'm4a', 'aac', 'opus', 'webm'],
+            image: ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp']
+        };
+        return (known[kind] || []).includes(ext);
     }
 
     window.Utils = {
         escapeHtml,
+        revealOnMobile,
+        isFileKind,
         copyText,
         bindCopyButton,
         typeText

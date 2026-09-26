@@ -7,7 +7,7 @@
     'use strict';
 
     // DOM Elements
-    const modeButtons = document.querySelectorAll('.mode-btn');
+    const modeButtons = document.querySelectorAll('#encoder-section [data-mode]');
     const inputField = document.getElementById('encoder-input');
     const outputField = document.getElementById('encoder-output');
     const encodeBtn = document.getElementById('encode-btn');
@@ -19,69 +19,95 @@
     let currentMode = 'binary';
 
     /**
+     * Decode raw bytes as UTF-8, falling back to Latin-1 for
+     * legacy one-byte-per-character payloads
+     * @param {number[]} bytes - Byte values (0-255)
+     * @returns {string} Decoded text
+     */
+    function bytesToText(bytes) {
+        try {
+            return new TextDecoder('utf-8', { fatal: true }).decode(new Uint8Array(bytes));
+        } catch (e) {
+            return bytes.map(byte => String.fromCharCode(byte)).join('');
+        }
+    }
+
+    /**
+     * Split encoded input into byte tokens. Space separated tokens are
+     * used as is, longer runs are chunked (e.g. "48656c6c6f" -> 48 65 6c...)
+     * @param {string} input - Encoded string
+     * @param {number} width - Characters per byte (8 for binary, 2 for hex)
+     * @returns {string[]} Byte tokens
+     */
+    function splitTokens(input, width) {
+        const tokens = [];
+        input.trim().split(/\s+/).forEach(token => {
+            if (token.length > width && token.length % width === 0) {
+                for (let i = 0; i < token.length; i += width) {
+                    tokens.push(token.slice(i, i + width));
+                }
+            } else {
+                tokens.push(token);
+            }
+        });
+        return tokens;
+    }
+
+    /**
      * Convert text to binary
      * @param {string} text - Input text
-     * @returns {string} Binary representation
+     * @returns {string} Binary representation (UTF-8 octets)
      */
     function textToBinary(text) {
-        return text.split('')
-            .map(char => char.charCodeAt(0).toString(2).padStart(8, '0'))
+        return Array.from(new TextEncoder().encode(text))
+            .map(byte => byte.toString(2).padStart(8, '0'))
             .join(' ');
     }
 
     /**
      * Convert binary to text
-     * @param {string} binary - Binary string (space-separated octets)
+     * @param {string} binary - Binary string (octets, spaces optional)
      * @returns {string} Decoded text
      */
     function binaryToText(binary) {
-        // Remove extra spaces and validate
-        const cleaned = binary.trim().replace(/\s+/g, ' ');
-        const octets = cleaned.split(' ');
+        const octets = splitTokens(binary.replace(/^0b/i, ''), 8);
 
-        // Validate binary format
         for (const octet of octets) {
-            if (!/^[01]+$/.test(octet)) {
-                throw new Error('Invalid binary format. Use only 0s and 1s.');
+            if (!/^[01]{1,8}$/.test(octet)) {
+                throw new Error('Invalid binary format. Use 8-bit groups of 0s and 1s.');
             }
         }
 
-        return octets
-            .map(octet => String.fromCharCode(parseInt(octet, 2)))
-            .join('');
+        return bytesToText(octets.map(octet => parseInt(octet, 2)));
     }
 
     /**
      * Convert text to hexadecimal
      * @param {string} text - Input text
-     * @returns {string} Hexadecimal representation
+     * @returns {string} Hexadecimal representation (UTF-8 bytes)
      */
     function textToHex(text) {
-        return text.split('')
-            .map(char => char.charCodeAt(0).toString(16).padStart(2, '0'))
+        return Array.from(new TextEncoder().encode(text))
+            .map(byte => byte.toString(16).padStart(2, '0'))
             .join(' ');
     }
 
     /**
      * Convert hexadecimal to text
-     * @param {string} hex - Hexadecimal string (space-separated bytes)
+     * @param {string} hex - Hexadecimal string (bytes, spaces optional)
      * @returns {string} Decoded text
      */
     function hexToText(hex) {
-        // Remove extra spaces and validate
-        const cleaned = hex.trim().replace(/\s+/g, ' ');
-        const bytes = cleaned.split(' ');
+        const cleaned = hex.replace(/0x/gi, ' ').replace(/[,:]/g, ' ');
+        const bytes = splitTokens(cleaned, 2);
 
-        // Validate hex format
         for (const byte of bytes) {
-            if (!/^[0-9a-fA-F]+$/.test(byte)) {
-                throw new Error('Invalid hexadecimal format. Use only 0-9 and A-F.');
+            if (!/^[0-9a-fA-F]{1,2}$/.test(byte)) {
+                throw new Error('Invalid hexadecimal format. Use byte pairs of 0-9 and A-F.');
             }
         }
 
-        return bytes
-            .map(byte => String.fromCharCode(parseInt(byte, 16)))
-            .join('');
+        return bytesToText(bytes.map(byte => parseInt(byte, 16)));
     }
 
     /**

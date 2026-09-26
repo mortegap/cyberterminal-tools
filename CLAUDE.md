@@ -43,6 +43,8 @@ cyberterminal-tools/
 │   ├── signals.json        # Radio band signals
 │   ├── gates.json          # Icebreaker targets
 │   └── audio/              # GM audio clips for signals
+├── nginx/
+│   └── default.conf        # Cache headers (no-cache shell/data) and gzip
 ├── Dockerfile              # nginx-based container
 └── docker-compose.yaml     # Container orchestration + data volume
 ```
@@ -55,7 +57,7 @@ docker-compose up --build
 
 Access at `http://localhost:8083`
 
-The `data/` directory is mounted as a read-only volume, so the GM can edit campaign JSON on the host mid-session without rebuilding. Clients poll `config.json` and `messages.json`; other files load when a tool is opened.
+The `data/` directory is mounted as a read-only volume, so the GM can edit campaign JSON on the host mid-session without rebuilding. Clients poll `config.json` and `messages.json`; other files are re-fetched every time a tool is opened.
 
 ## Features
 
@@ -64,8 +66,8 @@ Boot sequence (skippable, once per browser session), then operator login. The ha
 
 ### Tools
 - **Data Encoder/Decoder**: Binary, Hex, Base64, ASCII85
-- **Breach Protocol**: Cyberpunk 2077 style minigame. Daemon sequences are sliced from a valid path through the matrix, so puzzles are always solvable
-- **Cipher Decoder**: Caesar, Vigenere, Atbash, Substitution, plus a letter frequency analysis chart
+- **Breach Protocol**: Cyberpunk 2077 style minigame with easy/standard/hard presets and a breach timer. Daemon sequences are sliced from a valid path through the matrix, so puzzles are always solvable. GM can set default/locked difficulty and per-daemon rewards via `config.json` `breach`
+- **Cipher Decoder**: Caesar, Vigenere, Atbash, Substitution, Caesar brute force ranked by letter-frequency log-likelihood, plus a letter frequency analysis chart (English or Spanish reference)
 - **Spectrogram Analyzer**: reveal images hidden in audio, FFT result cached so color scheme changes re-render instantly
 - **NETLINK CLI**: command line over a GM-authored filesystem (hosts, locked dirs, encrypted files)
 - **NET Architecture**: Cyberpunk RED architecture floor navigator with password/file/control/ICE floors
@@ -78,7 +80,7 @@ Boot sequence (skippable, once per browser session), then operator login. The ha
 - **Comms**: transmission inbox; urgent GM messages take over the screen
 
 ### GM controls (via data/ JSON)
-MOTD, instability level 0-3 (escalating glitch effects), scheduled and targeted messages. See `data/README.md` for all formats and the sample puzzle chain.
+MOTD, instability level 0-3 (escalating glitch effects), scheduled and targeted messages, Breach Protocol difficulty and rewards. See `data/README.md` for all formats and the sample puzzle chain.
 
 ## Tech Stack
 
@@ -94,3 +96,4 @@ MOTD, instability level 0-3 (escalating glitch effects), scheduled and targeted 
 - Maintain mobile-first responsive design
 - No external CDN dependencies: fonts are self-hosted, everything must work on a LAN without internet
 - Clipboard and crypto must not rely on secure-context-only APIs (players connect over plain http)
+- Respect `prefers-reduced-motion` and keep interactive elements keyboard reachable (real buttons, or `role="button"` + `tabindex="0"`, which main.js activates on Enter/Space)

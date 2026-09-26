@@ -21,6 +21,11 @@
     const progressText = document.getElementById('progress-text');
     const canvas = document.getElementById('spectrogram-canvas');
     const infoDuration = document.getElementById('info-duration');
+    const infoFreq = document.querySelector('#spectrogram-section .info-freq');
+
+    // Cap on time columns: keeps memory bounded and the canvas below
+    // mobile browser size limits (iOS rejects canvases over ~16M pixels)
+    const MAX_COLUMNS = 4096;
 
     // State
     let audioBuffer = null;
@@ -131,9 +136,9 @@
      * @param {AudioBuffer} buffer - The decoded audio buffer
      * @param {number} fftSize - FFT window size (must be power of 2)
      * @param {function} onProgress - Progress callback (0-1)
-     * @returns {Object} Spectrogram data with frequencies and magnitudes
+     * @returns {Promise<Object>} Spectrogram data with frequencies and magnitudes
      */
-    function computeSpectrogram(buffer, fftSize, onProgress) {
+    async function computeSpectrogram(buffer, fftSize, onProgress) {
         // Get mono channel data (average if stereo)
         let samples;
         if (buffer.numberOfChannels === 1) {
@@ -148,8 +153,13 @@
             }
         }
 
+        if (samples.length < fftSize) {
+            throw new Error('Audio clip is too short for FFT size ' + fftSize + '. Pick a smaller FFT size.');
+        }
+
         const sampleRate = buffer.sampleRate;
-        const hopSize = fftSize / 4; // 75% overlap for better resolution
+        // 75% overlap for better resolution, widened on long clips to respect MAX_COLUMNS
+        const hopSize = Math.max(fftSize / 4, Math.ceil((samples.length - fftSize) / (MAX_COLUMNS - 1)));
         const numWindows = Math.floor((samples.length - fftSize) / hopSize) + 1;
         const numBins = fftSize / 2; // Only positive frequencies
 
@@ -192,9 +202,10 @@
 
             spectrogramData.push(magnitudes);
 
-            // Report progress
+            // Report progress and yield so the browser can repaint the bar
             if (w % 100 === 0 && onProgress) {
                 onProgress(w / numWindows);
+                await new Promise(resolve => setTimeout(resolve, 0));
             }
         }
 
@@ -321,7 +332,7 @@
         if (!file) return;
 
         // Validate file type
-        if (!file.type.startsWith('audio/')) {
+        if (!Utils.isFileKind(file, 'audio')) {
             Modal.alert({
                 title: 'INVALID FILE',
                 message: 'Please select a valid audio file (WAV, MP3, OGG).',
@@ -386,7 +397,7 @@
 
             // Compute spectrogram
             updateProgress(15, 'Computing FFT...');
-            const spectrogram = computeSpectrogram(audioBuffer, fftSize, (p) => {
+            const spectrogram = await computeSpectrogram(audioBuffer, fftSize, (p) => {
                 updateProgress(15 + p * 70, `Processing... ${Math.floor(p * 100)}%`);
             });
             lastSpectrogram = spectrogram;
@@ -396,8 +407,11 @@
             const colorScheme = colorSchemeSelect.value;
             renderSpectrogram(spectrogram, canvas, colorScheme);
 
-            // Update duration info
+            // Update duration and frequency range info
             infoDuration.textContent = `Duration: ${formatDuration(spectrogram.duration)}`;
+            if (infoFreq) {
+                infoFreq.textContent = `Freq: 0 - ${(spectrogram.maxFreq / 1000).toFixed(1)}kHz`;
+            }
 
             updateProgress(100, 'Complete!');
 
@@ -435,6 +449,8 @@
             if (file) {
                 handleFileSelect(file);
             }
+            // Reset so picking the same file again still fires change
+            e.target.value = '';
         });
 
         // Upload area click

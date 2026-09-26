@@ -18,14 +18,70 @@
     const copyBtn = document.getElementById('cipher-copy-btn');
     const freqBtn = document.getElementById('freq-analyze-btn');
     const freqChart = document.getElementById('freq-chart');
+    const bruteBtn = document.getElementById('brute-force-btn');
+    const langSelect = document.getElementById('freq-lang');
 
-    // Expected English letter frequencies in percent
-    const ENGLISH_FREQ = {
-        A: 8.2, B: 1.5, C: 2.8, D: 4.3, E: 12.7, F: 2.2, G: 2.0, H: 6.1,
-        I: 7.0, J: 0.15, K: 0.77, L: 4.0, M: 2.4, N: 6.7, O: 7.5, P: 1.9,
-        Q: 0.095, R: 6.0, S: 6.3, T: 9.1, U: 2.8, V: 0.98, W: 2.4, X: 0.15,
-        Y: 2.0, Z: 0.074
+    const LANG_KEY = 'ct_cipher_lang';
+    const BRUTE_PREVIEW_CHARS = 120;
+
+    // Expected letter frequencies in percent per reference language
+    const LANGUAGES = {
+        en: {
+            label: 'ENGLISH',
+            freq: {
+                A: 8.2, B: 1.5, C: 2.8, D: 4.3, E: 12.7, F: 2.2, G: 2.0, H: 6.1,
+                I: 7.0, J: 0.15, K: 0.77, L: 4.0, M: 2.4, N: 6.7, O: 7.5, P: 1.9,
+                Q: 0.095, R: 6.0, S: 6.3, T: 9.1, U: 2.8, V: 0.98, W: 2.4, X: 0.15,
+                Y: 2.0, Z: 0.074
+            }
+        },
+        es: {
+            label: 'SPANISH',
+            freq: {
+                A: 12.53, B: 1.42, C: 4.68, D: 5.86, E: 13.68, F: 0.69, G: 1.01, H: 0.70,
+                I: 6.25, J: 0.44, K: 0.02, L: 4.97, M: 3.15, N: 6.71, O: 8.68, P: 2.51,
+                Q: 0.88, R: 6.87, S: 7.98, T: 4.63, U: 3.93, V: 0.90, W: 0.01, X: 0.22,
+                Y: 0.90, Z: 0.52
+            }
+        }
     };
+
+    /**
+     * Currently selected reference language
+     * @returns {Object} Language definition
+     */
+    function currentLanguage() {
+        return LANGUAGES[langSelect.value] || LANGUAGES.en;
+    }
+
+    /**
+     * Uppercase A-Z letters only, with accents folded (Á -> A)
+     * @param {string} text - Input text
+     * @returns {string}
+     */
+    function lettersOnly(text) {
+        return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+            .toUpperCase().replace(/[^A-Z]/g, '');
+    }
+
+    /**
+     * Negative log-likelihood of the text under a language letter
+     * profile. Lower means more plausible plaintext. Rare letters are
+     * floored so a single typo cannot outweigh the rest of the message.
+     * @param {string} text - Candidate plaintext
+     * @param {Object} freq - Expected frequencies in percent
+     * @returns {number}
+     */
+    function languageScore(text, freq) {
+        const letters = lettersOnly(text);
+        if (!letters.length) return Infinity;
+
+        let score = 0;
+        for (const char of letters) {
+            score -= Math.log(Math.max(freq[char], 0.1) / 100);
+        }
+        return score / letters.length;
+    }
 
     // Current cipher method
     let currentCipher = 'caesar';
@@ -319,8 +375,9 @@
      * a comparison chart against expected English frequencies
      */
     function analyzeFrequency() {
-        const text = inputField.value.toUpperCase();
-        const letters = text.replace(/[^A-Z]/g, '');
+        const letters = lettersOnly(inputField.value);
+        const language = currentLanguage();
+        const referenceFreq = language.freq;
 
         if (!letters.length) {
             showOutput('No letters to analyze.', true);
@@ -333,7 +390,7 @@
         }
 
         const maxPct = Math.max(
-            ENGLISH_FREQ.E,
+            ...Object.values(referenceFreq),
             ...Object.values(counts).map(c => (c / letters.length) * 100)
         );
 
@@ -344,7 +401,7 @@
         legend.className = 'freq-legend';
         legend.innerHTML =
             '<span class="freq-legend-item input">&#9608; INPUT</span>' +
-            '<span class="freq-legend-item english">&#9608; ENGLISH</span>' +
+            '<span class="freq-legend-item english">&#9608; ' + language.label + '</span>' +
             '<span class="freq-legend-count">' + letters.length + ' letters analyzed</span>';
         freqChart.appendChild(legend);
 
@@ -353,7 +410,7 @@
 
         for (const letter of 'ABCDEFGHIJKLMNOPQRSTUVWXYZ') {
             const pct = ((counts[letter] || 0) / letters.length) * 100;
-            const expected = ENGLISH_FREQ[letter];
+            const expected = referenceFreq[letter];
 
             const col = document.createElement('div');
             col.className = 'freq-col';
@@ -368,6 +425,59 @@
         }
 
         freqChart.appendChild(bars);
+    }
+
+    /**
+     * Try all 25 Caesar shifts and rank them by how closely each
+     * candidate matches the reference language letter profile
+     */
+    function bruteForce() {
+        const input = inputField.value;
+        if (!lettersOnly(input).length) {
+            showOutput('No letters to brute force.', true);
+            return;
+        }
+
+        const language = currentLanguage();
+        const candidates = [];
+        for (let shift = 1; shift <= 25; shift++) {
+            const text = caesarCipher(input, shift, true);
+            candidates.push({ shift, text, score: languageScore(text, language.freq) });
+        }
+        const best = candidates.reduce((a, b) => (b.score < a.score ? b : a));
+
+        outputField.innerHTML = '';
+        const hint = document.createElement('div');
+        hint.className = 'brute-hint';
+        hint.textContent = '// 25 SHIFTS TESTED vs ' + language.label + ' PROFILE. BEST MATCH HIGHLIGHTED. TAP A ROW TO APPLY IT.';
+        outputField.appendChild(hint);
+
+        candidates.forEach(candidate => {
+            const row = document.createElement('button');
+            row.type = 'button';
+            row.className = 'brute-row' + (candidate === best ? ' best' : '');
+
+            const shiftEl = document.createElement('span');
+            shiftEl.className = 'brute-shift';
+            shiftEl.textContent = 'ROT-' + String(candidate.shift).padStart(2, '0');
+
+            const textEl = document.createElement('span');
+            textEl.className = 'brute-text';
+            const flat = candidate.text.replace(/\s+/g, ' ');
+            textEl.textContent = flat.length > BRUTE_PREVIEW_CHARS ? flat.slice(0, BRUTE_PREVIEW_CHARS) + '...' : flat;
+
+            row.appendChild(shiftEl);
+            row.appendChild(textEl);
+            row.addEventListener('click', () => {
+                setCipher('caesar');
+                keyInput.value = String(candidate.shift);
+                decrypt();
+            });
+            outputField.appendChild(row);
+        });
+
+        copyBtn.classList.add('hidden');
+        animateOutput();
     }
 
     /**
@@ -412,6 +522,7 @@
 
         // Update key input based on cipher
         const config = cipherConfig[cipher];
+        bruteBtn.classList.toggle('hidden', cipher !== 'caesar');
         keyLabel.textContent = config.label;
         keyInput.placeholder = config.placeholder;
 
@@ -449,6 +560,17 @@
         clearBtn.addEventListener('click', clearFields);
         copyBtn.addEventListener('click', copyToClipboard);
         freqBtn.addEventListener('click', analyzeFrequency);
+        bruteBtn.addEventListener('click', bruteForce);
+
+        // Remember the reference language and refresh an open chart
+        langSelect.addEventListener('change', () => {
+            try {
+                localStorage.setItem(LANG_KEY, langSelect.value);
+            } catch (error) {
+                // Storage unavailable, keep the choice for this session only
+            }
+            if (!freqChart.classList.contains('hidden')) analyzeFrequency();
+        });
 
         // Keyboard shortcuts
         inputField.addEventListener('keydown', (event) => {
@@ -465,6 +587,12 @@
      * Initialize the cipher module
      */
     function init() {
+        try {
+            const savedLang = localStorage.getItem(LANG_KEY);
+            if (LANGUAGES[savedLang]) langSelect.value = savedLang;
+        } catch (error) {
+            // Storage unavailable, use the default language
+        }
         initEventListeners();
         // Set default cipher (Caesar)
         setCipher('caesar');
@@ -483,6 +611,7 @@
         decrypt,
         setCipher,
         clear: clearFields,
+        bruteForce,
         // Expose individual cipher functions for testing
         caesarCipher,
         vigenereCipher,

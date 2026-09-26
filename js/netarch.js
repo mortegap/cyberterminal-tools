@@ -18,7 +18,6 @@
     let architectures = [];
     let current = null;
     let progress = JSON.parse(localStorage.getItem(STORE_KEY) || '{}');
-    let loaded = false;
 
     const FLOOR_META = {
         password: { label: 'PASSWORD GATE', cls: 'floor-password' },
@@ -170,11 +169,10 @@
      * Called when the section is opened
      */
     async function onEnter() {
-        if (!loaded) {
-            const data = await DataLoader.load('netarch');
-            architectures = (data && data.architectures) || [];
-            loaded = true;
-        }
+        // Always refetch so GM edits made mid-session show up
+        const data = await DataLoader.load('netarch', true);
+        architectures = ((data && data.architectures) || [])
+            .filter(arch => arch && arch.id && Array.isArray(arch.floors));
         renderList();
     }
 

@@ -1,6 +1,6 @@
 # GM Content Guide
 
-Everything in this directory is campaign content you can edit live during a session. The directory is mounted as a Docker volume, so changes on the host are visible to players without rebuilding the container. Clients poll `messages.json` and `config.json` automatically (default every 10 seconds); other files are loaded when a player opens the matching tool, so a page refresh picks up edits.
+Everything in this directory is campaign content you can edit live during a session. The directory is mounted as a Docker volume, so changes on the host are visible to players without rebuilding the container. Clients poll `messages.json` and `config.json` automatically (default every 10 seconds); other files are re-fetched every time a player opens the matching tool, so leaving and re-entering a tool picks up edits (no page refresh needed).
 
 All files must be valid JSON. If a file is missing or broken, the matching tool shows an empty state instead of crashing.
 
@@ -17,6 +17,37 @@ Global terminal settings.
 ```
 
 `instability` ranges 0 to 3. Level 1 increases scanline flicker, level 2 adds random glitch bursts and an UNSTABLE status, level 3 adds static sound bursts and a CRITICAL status. Use it when players are somewhere they should not be.
+
+### Breach Protocol settings (optional)
+
+Add a `breach` block to `config.json` to tune the BREACH PROTOCOL minigame and tie it into your puzzle chain.
+
+```json
+{
+    "breach": {
+        "difficulty": "standard",
+        "lockDifficulty": false,
+        "daemons": [
+            { "name": "CAMERA_LOOP", "reward": "East door cameras looped for 10 minutes." },
+            { "name": "DOOR_OVERRIDE", "reward": "Loading bay shutter code: 7713" },
+            { "name": "DATAMINE", "reward": "Shipping manifest copied to your deck." }
+        ]
+    }
+}
+```
+
+- `difficulty` is `easy`, `standard` or `hard`. Without `lockDifficulty` it is only the default for players who never picked one.
+- `lockDifficulty: true` forces that difficulty and hides the selector.
+- `daemons` renames the three daemon sequences (in order) and attaches a `reward`. Each completed daemon shows its reward on the result screen, so partial breaches pay out partially.
+- Changes apply on the next NEW BREACH (players pick up config edits within about 15 seconds).
+
+| Difficulty | Matrix | Buffer | Sequences | Timer |
+|------------|--------|--------|-----------|-------|
+| easy       | 5x5    | 7      | 2, 2, 3   | none  |
+| standard   | 5x5    | 6      | 2, 2, 3   | 60 s  |
+| hard       | 6x6    | 7      | 3, 3, 4   | 40 s  |
+
+The timer starts on the first pick, like in the original game. Every daemon is cut from one valid path through the matrix, so all three can always be breached together.
 
 ## messages.json
 

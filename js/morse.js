@@ -15,7 +15,9 @@
         '0': '-----', '1': '.----', '2': '..---', '3': '...--', '4': '....-',
         '5': '.....', '6': '-....', '7': '--...', '8': '---..', '9': '----.',
         '.': '.-.-.-', ',': '--..--', '?': '..--..', '/': '-..-.', '=': '-...-',
-        '-': '-....-', ':': '---...', "'": '.----.', '"': '.-..-.', '@': '.--.-.'
+        '-': '-....-', ':': '---...', "'": '.----.', '"': '.-..-.', '@': '.--.-.',
+        '\u00D1': '--.--', '!': '-.-.--', '(': '-.--.', ')': '-.--.-', '&': '.-...',
+        ';': '-.-.-.', '+': '.-.-.', '_': '..--.-', '$': '...-..-'
     };
 
     const REVERSE_MAP = Object.fromEntries(
@@ -35,6 +37,7 @@
 
     let lastOutput = '';
     let activeStop = null;
+    let autoStopTimer = null;
 
     /**
      * Encode text to morse code
@@ -43,8 +46,20 @@
      */
     function encode(text) {
         return text.trim().toUpperCase().split(/\s+/).map(word =>
-            word.split('').map(char => MORSE_MAP[char] || '').filter(Boolean).join(' ')
+            word.split('').map(morseFor).filter(Boolean).join(' ')
         ).filter(Boolean).join(' / ');
+    }
+
+    /**
+     * Morse code for one character, stripping accents (e.g. accented A -> A)
+     * so non-English text is not silently dropped
+     * @param {string} char - Uppercase character
+     * @returns {string} Morse code or empty string
+     */
+    function morseFor(char) {
+        if (MORSE_MAP[char]) return MORSE_MAP[char];
+        const base = char.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        return MORSE_MAP[base] || '';
     }
 
     /**
@@ -95,7 +110,8 @@
      */
     function play(morse, wpm = 12, volume = 0.08) {
         const ctx = Sound.getContext();
-        if (!ctx) return null;
+        const output = Sound.getOutput();
+        if (!ctx || !output) return null;
 
         const unit = 1.2 / wpm;
         const segments = timings(morse);
@@ -106,7 +122,7 @@
         osc.frequency.value = TONE_FREQ;
         gain.gain.setValueAtTime(0, ctx.currentTime);
         osc.connect(gain);
-        gain.connect(ctx.destination);
+        gain.connect(output);
 
         let t = ctx.currentTime + 0.1;
         segments.forEach(segment => {
@@ -152,11 +168,22 @@
      * Stop any active playback
      */
     function stopPlayback() {
+        if (autoStopTimer) {
+            clearTimeout(autoStopTimer);
+            autoStopTimer = null;
+        }
         if (activeStop) {
             activeStop();
             activeStop = null;
         }
         stopBtn.disabled = true;
+    }
+
+    /**
+     * Flag the play button when sound is muted, since playback is silent
+     */
+    function updatePlayLabel() {
+        playBtn.querySelector('.btn-text').textContent = Sound.isMuted() ? 'PLAY [SND:OFF]' : 'PLAY';
     }
 
     /**
@@ -206,11 +233,14 @@
 
             activeStop = playback.stop;
             stopBtn.disabled = false;
-            setTimeout(stopPlayback, playback.duration * 1000 + 200);
+            autoStopTimer = setTimeout(stopPlayback, playback.duration * 1000 + 200);
         });
 
         stopBtn.addEventListener('click', stopPlayback);
         Utils.bindCopyButton(copyBtn, () => lastOutput);
+
+        updatePlayLabel();
+        Sound.onMuteChange(updatePlayLabel);
     }
 
     if (document.readyState === 'loading') {
