@@ -105,6 +105,14 @@
         const ctx = canvas.getContext('2d');
         const copy = ctx.createImageData(imageData.width, imageData.height);
         copy.data.set(imageData.data);
+
+        // Canvas stores premultiplied alpha, so LSBs of translucent pixels
+        // would not survive the round trip. Make carrier pixels opaque.
+        const usedPixels = Math.ceil((full.length * 8) / 3);
+        for (let p = 0; p < usedPixels; p++) {
+            copy.data[p * 4 + 3] = 255;
+        }
+
         writeBits(copy.data, full);
         ctx.putImageData(copy, 0, 0);
 
@@ -167,7 +175,7 @@
      * @param {File} file - Image file
      */
     function loadImage(file) {
-        if (!file.type.startsWith('image/')) {
+        if (!Utils.isFileKind(file, 'image')) {
             Modal.alert({
                 title: 'INVALID FILE',
                 message: 'Please select a valid image file (PNG recommended).',
@@ -261,6 +269,8 @@
         uploadArea.addEventListener('click', () => fileInput.click());
         fileInput.addEventListener('change', (e) => {
             if (e.target.files[0]) loadImage(e.target.files[0]);
+            // Reset so picking the same file again still fires change
+            e.target.value = '';
         });
 
         uploadArea.addEventListener('dragover', (e) => {

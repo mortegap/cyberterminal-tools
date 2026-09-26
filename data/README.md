@@ -1,6 +1,6 @@
 # GM Content Guide
 
-Everything in this directory is campaign content you can edit live during a session. The directory is mounted as a Docker volume, so changes on the host are visible to players without rebuilding the container. Clients poll `messages.json` and `config.json` automatically (default every 10 seconds); other files are loaded when a player opens the matching tool, so a page refresh picks up edits.
+Everything in this directory is campaign content you can edit live during a session. The directory is mounted as a Docker volume, so changes on the host are visible to players without rebuilding the container. Clients poll `messages.json` and `config.json` automatically (default every 10 seconds); other files are re-fetched every time a player opens the matching tool, so leaving and re-entering a tool picks up edits (no page refresh needed).
 
 All files must be valid JSON. If a file is missing or broken, the matching tool shows an empty state instead of crashing.
 

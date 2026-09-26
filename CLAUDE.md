@@ -55,7 +55,7 @@ docker-compose up --build
 
 Access at `http://localhost:8083`
 
-The `data/` directory is mounted as a read-only volume, so the GM can edit campaign JSON on the host mid-session without rebuilding. Clients poll `config.json` and `messages.json`; other files load when a tool is opened.
+The `data/` directory is mounted as a read-only volume, so the GM can edit campaign JSON on the host mid-session without rebuilding. Clients poll `config.json` and `messages.json`; other files are re-fetched every time a tool is opened.
 
 ## Features
 

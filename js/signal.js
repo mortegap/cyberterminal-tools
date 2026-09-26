@@ -143,11 +143,15 @@
      * Update meter, label and audio mix for the current frequency
      */
     function updateTuning() {
-        freqDisplay.textContent = freq.toFixed(1) + ' ' + band.unit;
+        freqDisplay.textContent = freq.toFixed(stepDecimals()) + ' ' + band.unit;
         const state = tuneState();
 
         // Meter segments
-        const lit = state.locked ? METER_SEGMENTS : Math.round(state.strength * (METER_SEGMENTS - 1));
+        // A powered-off receiver must not reveal where signals are
+        let lit = 0;
+        if (powered) {
+            lit = state.locked ? METER_SEGMENTS : Math.round(state.strength * (METER_SEGMENTS - 1));
+        }
         [...meterEl.children].forEach((segment, i) => {
             segment.className = 'meter-segment' +
                 (i < lit ? (state.locked ? ' locked' : ' lit') : '');
@@ -241,11 +245,22 @@
     }
 
     /**
+     * Decimal places needed to display the band step (0.1 -> 1, 0.05 -> 2)
+     * @returns {number}
+     */
+    function stepDecimals() {
+        const text = String(band.step);
+        return text.includes('.') ? text.split('.')[1].length : 0;
+    }
+
+    /**
      * Set the tuned frequency, clamped to the band
      * @param {number} value - Frequency
      */
     function setFreq(value) {
-        freq = Math.min(band.max, Math.max(band.min, Math.round(value / band.step) * band.step));
+        const snapped = Math.round(value / band.step) * band.step;
+        // Strip floating point noise (88.1 instead of 88.10000000000001)
+        freq = Math.min(band.max, Math.max(band.min, parseFloat(snapped.toFixed(stepDecimals()))));
         sliderEl.value = freq;
         updateTuning();
     }
@@ -254,12 +269,16 @@
      * Called when the section is opened
      */
     async function onEnter() {
-        if (!loaded) {
-            const data = await DataLoader.load('signals');
-            band = (data && data.band) || DEFAULT_BAND;
-            signals = (data && data.signals) || [];
-            loaded = true;
+        // Always refetch so GM edits made mid-session show up
+        const data = await DataLoader.load('signals', true);
+        const newBand = Object.assign({}, DEFAULT_BAND, (data && data.band) || {});
+        signals = ((data && data.signals) || []).filter(signal => signal && typeof signal.freq === 'number');
 
+        const bandChanged = !loaded || newBand.min !== band.min ||
+            newBand.max !== band.max || newBand.step !== band.step;
+        band = newBand;
+
+        if (bandChanged) {
             sliderEl.min = band.min;
             sliderEl.max = band.max;
             sliderEl.step = band.step;
@@ -267,6 +286,7 @@
             sliderEl.value = freq;
             bandInfoEl.textContent = 'BAND: ' + band.min + ' - ' + band.max + ' ' + band.unit;
         }
+        loaded = true;
         updateTuning();
     }
 

@@ -15,7 +15,6 @@
 
     let records = [];
     let unlockedSet = new Set(JSON.parse(localStorage.getItem(UNLOCK_KEY) || '[]'));
-    let loaded = false;
     let currentRecord = null;
 
     /**
@@ -61,7 +60,7 @@
             row.innerHTML =
                 '<span class="db-row-type">' + Utils.escapeHtml(record.type || 'DATA') + '</span>' +
                 '<span class="db-row-name">' + Utils.escapeHtml(record.name || record.id) + '</span>';
-            row.addEventListener('click', () => openRecord(record));
+            row.addEventListener('click', () => selectRecord(record));
             listEl.appendChild(row);
         });
     }
@@ -170,13 +169,31 @@
     }
 
     /**
+     * Open a record from the list and bring it into view on mobile
+     * @param {Object} record - Record definition
+     */
+    function selectRecord(record) {
+        openRecord(record);
+        Utils.revealOnMobile(detailEl);
+    }
+
+    /**
      * Called when the section is opened
      */
     async function onEnter() {
-        if (!loaded) {
-            const data = await DataLoader.load('databank');
-            records = (data && data.records) || [];
-            loaded = true;
+        // Always refetch so GM edits made mid-session show up
+        const data = await DataLoader.load('databank', true);
+        records = ((data && data.records) || []).filter(record => record && record.id);
+
+        // Keep the open dossier in sync with the fresh data
+        if (currentRecord) {
+            const fresh = records.find(record => record.id === currentRecord.id);
+            if (fresh) {
+                openRecord(fresh);
+                return;
+            }
+            currentRecord = null;
+            detailEl.classList.add('hidden');
         }
         renderList();
     }

@@ -15,7 +15,9 @@
         '0': '-----', '1': '.----', '2': '..---', '3': '...--', '4': '....-',
         '5': '.....', '6': '-....', '7': '--...', '8': '---..', '9': '----.',
         '.': '.-.-.-', ',': '--..--', '?': '..--..', '/': '-..-.', '=': '-...-',
-        '-': '-....-', ':': '---...', "'": '.----.', '"': '.-..-.', '@': '.--.-.'
+        '-': '-....-', ':': '---...', "'": '.----.', '"': '.-..-.', '@': '.--.-.',
+        '\u00D1': '--.--', '!': '-.-.--', '(': '-.--.', ')': '-.--.-', '&': '.-...',
+        ';': '-.-.-.', '+': '.-.-.', '_': '..--.-', '$': '...-..-'
     };
 
     const REVERSE_MAP = Object.fromEntries(
@@ -35,6 +37,7 @@
 
     let lastOutput = '';
     let activeStop = null;
+    let autoStopTimer = null;
 
     /**
      * Encode text to morse code
@@ -43,8 +46,20 @@
      */
     function encode(text) {
         return text.trim().toUpperCase().split(/\s+/).map(word =>
-            word.split('').map(char => MORSE_MAP[char] || '').filter(Boolean).join(' ')
+            word.split('').map(morseFor).filter(Boolean).join(' ')
         ).filter(Boolean).join(' / ');
+    }
+
+    /**
+     * Morse code for one character, stripping accents (e.g. accented A -> A)
+     * so non-English text is not silently dropped
+     * @param {string} char - Uppercase character
+     * @returns {string} Morse code or empty string
+     */
+    function morseFor(char) {
+        if (MORSE_MAP[char]) return MORSE_MAP[char];
+        const base = char.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        return MORSE_MAP[base] || '';
     }
 
     /**
@@ -152,6 +167,10 @@
      * Stop any active playback
      */
     function stopPlayback() {
+        if (autoStopTimer) {
+            clearTimeout(autoStopTimer);
+            autoStopTimer = null;
+        }
         if (activeStop) {
             activeStop();
             activeStop = null;
@@ -206,7 +225,7 @@
 
             activeStop = playback.stop;
             stopBtn.disabled = false;
-            setTimeout(stopPlayback, playback.duration * 1000 + 200);
+            autoStopTimer = setTimeout(stopPlayback, playback.duration * 1000 + 200);
         });
 
         stopBtn.addEventListener('click', stopPlayback);

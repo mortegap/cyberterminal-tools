@@ -106,6 +106,7 @@
             'FROM: ' + (msg.from || 'UNKNOWN') + '  //  TO: ' + (msg.to || 'all') + '  //  ' + formatTime(msg.time);
         const bodyEl = detailEl.querySelector('.comms-detail-body');
         Utils.typeText(bodyEl, msg.body || '', { speed: 4, tick: true });
+        Utils.revealOnMobile(detailEl);
     }
 
     /**
@@ -164,6 +165,14 @@
      * @param {Object} msg - Message object
      */
     function showToast(msg) {
+        let stack = document.getElementById('toast-stack');
+        if (!stack) {
+            stack = document.createElement('div');
+            stack.id = 'toast-stack';
+            stack.className = 'toast-stack';
+            document.body.appendChild(stack);
+        }
+
         const toast = document.createElement('div');
         toast.className = 'comms-toast';
         toast.innerHTML =
@@ -173,7 +182,7 @@
             toast.remove();
             Terminal.navigateToSection('comms');
         });
-        document.body.appendChild(toast);
+        stack.appendChild(toast);
 
         if (window.Sound) Sound.confirm();
         setTimeout(() => toast.remove(), 6000);

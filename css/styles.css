@@ -564,8 +564,8 @@ body {
     background: var(--bg-dark);
     border: 1px solid var(--bg-panel-border);
     font-size: 1rem;
-    word-break: break-all;
-    overflow-wrap: break-word;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
 }
 
 .output-placeholder {
@@ -1559,11 +1559,18 @@ body {
 /* ========================================
    TRANSMISSIONS
    ======================================== */
-.comms-toast {
+.toast-stack {
     position: fixed;
     right: var(--spacing-lg);
     bottom: var(--spacing-lg);
     z-index: 9000;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    max-width: min(360px, calc(100vw - 2 * var(--spacing-lg)));
+}
+
+.comms-toast {
     background: var(--bg-dark);
     border: 1px solid var(--yellow);
     padding: var(--spacing-md);
@@ -2477,6 +2484,8 @@ body.instability-3 .terminal-header {
 
     .cli-terminal {
         height: 55vh;
+        /* Dynamic viewport units shrink with the on-screen keyboard */
+        height: 55dvh;
     }
 
     .signal-tuning {
@@ -2486,5 +2495,17 @@ body.instability-3 .terminal-header {
     .signal-slider {
         min-width: 100%;
         order: -1;
+    }
+
+    .signal-tuning .signal-fine {
+        width: auto;
+        flex: 1;
+    }
+}
+
+@media (max-width: 480px) {
+    .db-field {
+        grid-template-columns: 1fr;
+        gap: 0;
     }
 }

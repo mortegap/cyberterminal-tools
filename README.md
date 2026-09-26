@@ -11,7 +11,7 @@ Cyberpunk 2077 style netrunning terminal with encoding tools and a hacking minig
 docker-compose up --build
 ```
 
-Open `http://localhost:8080`
+Open `http://localhost:8083`
 
 ## Features
 
