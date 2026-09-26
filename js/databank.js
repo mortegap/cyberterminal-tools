@@ -112,6 +112,8 @@
         span.className = 'db-redacted locked';
         span.textContent = '[REDACTED]';
         span.title = 'Access code required';
+        span.setAttribute('role', 'button');
+        span.tabIndex = 0;
         span.addEventListener('click', async () => {
             const code = await Modal.prompt({
                 title: 'RESTRICTED DATA',

@@ -1,5 +1,23 @@
 {
     "motd": "SUBNET DETECTED // WATSON DISTRICT RELAY",
     "instability": 0,
-    "pollIntervalSeconds": 10
+    "pollIntervalSeconds": 10,
+    "breach": {
+        "difficulty": "standard",
+        "lockDifficulty": false,
+        "daemons": [
+            {
+                "name": "CAMERA_LOOP",
+                "reward": "WATCHDOG feed looped. East door of Warehouse 77 is blind for 10 minutes."
+            },
+            {
+                "name": "DOOR_OVERRIDE",
+                "reward": "Loading bay shutter opens on your signal."
+            },
+            {
+                "name": "DATAMINE",
+                "reward": "Guard rotation copied: shift change at 02:00."
+            }
+        ]
+    }
 }

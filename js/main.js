@@ -288,6 +288,16 @@
             }
         });
 
+        // Keyboard activation for non-button elements acting as buttons
+        document.addEventListener('keydown', (event) => {
+            if (event.key !== 'Enter' && event.key !== ' ') return;
+            const target = event.target;
+            if (target.getAttribute && target.getAttribute('role') === 'button' && target.tagName !== 'BUTTON') {
+                event.preventDefault();
+                target.click();
+            }
+        });
+
         document.addEventListener('keydown', (event) => {
             if (event.key !== 'Escape') return;
             if (window.Modal && Modal.isOpen()) return;
