@@ -110,7 +110,8 @@
      */
     function play(morse, wpm = 12, volume = 0.08) {
         const ctx = Sound.getContext();
-        if (!ctx) return null;
+        const output = Sound.getOutput();
+        if (!ctx || !output) return null;
 
         const unit = 1.2 / wpm;
         const segments = timings(morse);
@@ -121,7 +122,7 @@
         osc.frequency.value = TONE_FREQ;
         gain.gain.setValueAtTime(0, ctx.currentTime);
         osc.connect(gain);
-        gain.connect(ctx.destination);
+        gain.connect(output);
 
         let t = ctx.currentTime + 0.1;
         segments.forEach(segment => {
@@ -179,6 +180,13 @@
     }
 
     /**
+     * Flag the play button when sound is muted, since playback is silent
+     */
+    function updatePlayLabel() {
+        playBtn.querySelector('.btn-text').textContent = Sound.isMuted() ? 'PLAY [SND:OFF]' : 'PLAY';
+    }
+
+    /**
      * Initialize the module
      */
     function init() {
@@ -230,6 +238,9 @@
 
         stopBtn.addEventListener('click', stopPlayback);
         Utils.bindCopyButton(copyBtn, () => lastOutput);
+
+        updatePlayLabel();
+        Sound.onMuteChange(updatePlayLabel);
     }
 
     if (document.readyState === 'loading') {

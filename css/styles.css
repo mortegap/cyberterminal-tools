@@ -2768,3 +2768,7 @@ input[type="range"]:focus-visible,
         min-width: 100%;
     }
 }
+
+.signal-band.muted {
+    color: var(--red);
+}

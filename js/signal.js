@@ -64,8 +64,9 @@
      */
     function startNoise() {
         const ctx = Sound.getContext();
+        const output = Sound.getOutput();
         const buffer = Sound.getNoiseBuffer();
-        if (!ctx || !buffer) return;
+        if (!ctx || !output || !buffer) return;
 
         noiseSource = ctx.createBufferSource();
         noiseGain = ctx.createGain();
@@ -73,7 +74,7 @@
         noiseSource.loop = true;
         noiseGain.gain.value = 0.1;
         noiseSource.connect(noiseGain);
-        noiseGain.connect(ctx.destination);
+        noiseGain.connect(output);
         noiseSource.start();
     }
 
@@ -100,6 +101,7 @@
             const audio = new Audio(signal.src);
             audio.loop = true;
             audio.volume = 0.9;
+            audio.muted = Sound.isMuted();
             audio.play().catch(() => { /* missing file or blocked autoplay */ });
             content.audio = audio;
         } else if (signal.type === 'morse' && signal.text) {
@@ -112,14 +114,15 @@
             loop();
         } else if (signal.type === 'tone') {
             const ctx = Sound.getContext();
-            if (!ctx) return;
+            const output = Sound.getOutput();
+            if (!ctx || !output) return;
             const osc = ctx.createOscillator();
             const gain = ctx.createGain();
             osc.type = 'sine';
             osc.frequency.value = signal.toneHz || 440;
             gain.gain.value = 0.06;
             osc.connect(gain);
-            gain.connect(ctx.destination);
+            gain.connect(output);
             osc.start();
             content.stop = () => { try { osc.stop(); } catch (error) { /* stopped */ } };
         }
@@ -266,6 +269,15 @@
     }
 
     /**
+     * Band readout, flagging that broadcasts are inaudible while muted
+     */
+    function updateBandInfo() {
+        bandInfoEl.textContent = 'BAND: ' + band.min + ' - ' + band.max + ' ' + band.unit +
+            (Sound.isMuted() ? '  //  SND:OFF' : '');
+        bandInfoEl.classList.toggle('muted', Sound.isMuted());
+    }
+
+    /**
      * Called when the section is opened
      */
     async function onEnter() {
@@ -284,7 +296,7 @@
             sliderEl.step = band.step;
             freq = band.min;
             sliderEl.value = freq;
-            bandInfoEl.textContent = 'BAND: ' + band.min + ' - ' + band.max + ' ' + band.unit;
+            updateBandInfo();
         }
         loaded = true;
         updateTuning();
@@ -313,6 +325,12 @@
         }
 
         powerBtn.addEventListener('click', () => setPowered(!powered));
+
+        // Audio clips play through an <audio> element, outside the Web Audio mute
+        Sound.onMuteChange(muted => {
+            if (content && content.audio) content.audio.muted = muted;
+            if (loaded) updateBandInfo();
+        });
         sliderEl.addEventListener('input', () => setFreq(parseFloat(sliderEl.value)));
         document.getElementById('signal-fine-down').addEventListener('click', () => setFreq(freq - band.step));
         document.getElementById('signal-fine-up').addEventListener('click', () => setFreq(freq + band.step));

@@ -8,7 +8,9 @@
 
     let ctx = null;
     let noiseBuffer = null;
+    let master = null;
     let muted = localStorage.getItem('ct_muted') === '1';
+    const muteListeners = [];
 
     /**
      * Get or create the shared AudioContext
@@ -24,6 +26,23 @@
             ctx.resume();
         }
         return ctx;
+    }
+
+    /**
+     * Shared output node honoring the mute toggle. Long running sources
+     * (tuner static, morse playback, carrier tones) connect here instead
+     * of the destination, so SND:OFF silences them mid-playback too.
+     * @returns {GainNode|null}
+     */
+    function getOutput() {
+        const c = getContext();
+        if (!c) return null;
+        if (!master) {
+            master = c.createGain();
+            master.gain.value = muted ? 0 : 1;
+            master.connect(c.destination);
+        }
+        return master;
     }
 
     /**
@@ -139,6 +158,18 @@
     function setMuted(value) {
         muted = !!value;
         localStorage.setItem('ct_muted', muted ? '1' : '0');
+        if (master && ctx) {
+            master.gain.setValueAtTime(muted ? 0 : 1, ctx.currentTime);
+        }
+        muteListeners.forEach(listener => listener(muted));
+    }
+
+    /**
+     * Register a callback for mute changes
+     * @param {function} listener - Called with the new muted state
+     */
+    function onMuteChange(listener) {
+        muteListeners.push(listener);
     }
 
     function toggleMute() {
@@ -152,6 +183,7 @@
 
     window.Sound = {
         getContext,
+        getOutput,
         getNoiseBuffer,
         click,
         keyTick,
@@ -162,7 +194,8 @@
         glitch,
         isMuted,
         setMuted,
-        toggleMute
+        toggleMute,
+        onMuteChange
     };
 
 })();
