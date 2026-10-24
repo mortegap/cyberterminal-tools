@@ -72,6 +72,7 @@ All campaign content lives in `data/`:
 | `signals.json` | Radio band and hidden broadcasts |
 | `gates.json` | Icebreaker targets |
 | `audio/` | Audio clips referenced by `signals.json` |
+| `files/` | Optional files players download by URL (stego images, spectrogram audio) |
 
 Formats, examples and a sample puzzle chain are documented in [`data/README.md`](data/README.md). Replace the sample content with your own campaign before sharing the URL.
 

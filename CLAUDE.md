@@ -42,7 +42,8 @@ cyberterminal-tools/
 │   ├── databank.json       # Dossier records
 │   ├── signals.json        # Radio band signals
 │   ├── gates.json          # Icebreaker targets
-│   └── audio/              # GM audio clips for signals
+│   ├── audio/              # GM audio clips for signals
+│   └── files/              # Optional player downloads (stego PNGs, spectrogram WAVs), created by gmctl
 ├── nginx/
 │   └── default.conf        # Cache headers (no-cache shell/data) and gzip
 ├── .claude/

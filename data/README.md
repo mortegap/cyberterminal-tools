@@ -4,6 +4,8 @@ Everything in this directory is campaign content you can edit live during a sess
 
 All files must be valid JSON. If a file is missing or broken, the matching tool shows an empty state instead of crashing.
 
+You can edit these files by hand, or let Claude Code do it with the project skills (`/gm`, `/gm-content`, `/gm-crypto`, `/gm-server`). They use `.claude/skills/gm/scripts/gmctl.py`, which validates every change and can undo it. Run `python3 .claude/skills/gm/scripts/gmctl.py validate` after a hand edit to catch mistakes before players do.
+
 ## config.json
 
 Global terminal settings.
@@ -191,6 +193,10 @@ Targets for the ICEBREAKER password puzzle.
 ```
 
 Failing `maxAttempts` times triggers a lockout timer. Breached state persists per browser.
+
+## files/
+
+Optional folder for files players download straight from the server, at `http://<GM-IP>:8083/data/files/<name>`. Use it for anything the browser tools load from the player's device: PNGs with hidden text for STEGANOGRAPHY, or audio for the SPECTROGRAM ANALYZER. Give players the URL in a transmission or a CLI file. `gmctl stego embed` and `gmctl spectro` generate compatible files, and `gmctl file add` publishes them and prints the URL. Do not resize or recompress stego images (chat apps often do): share the URL instead.
 
 ## Chaining puzzles
 
