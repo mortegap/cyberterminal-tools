@@ -202,7 +202,7 @@ Optional folder for files players download straight from the server, at `http://
 
 The sample content shows the intended pattern:
 
-1. An urgent transmission points players at the 91.3 MHz band.
+1. An urgent transmission points players at the 91.3 MHz band. Players who miss it can follow the Warehouse 77 gig dossier lead to the pirate broadcast on 104.5 MHz (`audio/broadcast.mp3`), which sends them to the same band and hints at the WATCHDOG camera gate.
 2. The morse signal there spells the password for the `militech-relay` CLI host.
 3. A file on that host is Vigenere ciphertext; the keyword hint sits in another CLI file.
 4. The databank names Vasquez's daughter, which cracks the Biotechnica gate in ICEBREAKER.
