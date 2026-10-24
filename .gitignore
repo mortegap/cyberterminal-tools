@@ -1,0 +1,4 @@
+# GM-side state written by .claude/skills/gm/scripts/gmctl.py (history, snapshots, roster)
+.claude/gm-state/
+.claude/settings.local.json
+__pycache__/

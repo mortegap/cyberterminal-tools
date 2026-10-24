@@ -45,6 +45,12 @@ cyberterminal-tools/
 │   └── audio/              # GM audio clips for signals
 ├── nginx/
 │   └── default.conf        # Cache headers (no-cache shell/data) and gzip
+├── .claude/
+│   ├── settings.json       # Pre-approves gmctl so live GM commands need no prompts
+│   ├── skills/             # Claude Code GM skills: gm, gm-content, gm-crypto, gm-server
+│   │   └── gm/scripts/
+│   │       └── gmctl.py    # GM control CLI over data/ (stdlib Python 3.9+)
+│   └── gm-state/           # gmctl history, snapshots, roster (gitignored, never served)
 ├── Dockerfile              # nginx-based container
 └── docker-compose.yaml     # Container orchestration + data volume
 ```
@@ -81,6 +87,15 @@ Boot sequence (skippable, once per browser session), then operator login. The ha
 
 ### GM controls (via data/ JSON)
 MOTD, instability level 0-3 (escalating glitch effects), scheduled and targeted messages, Breach Protocol difficulty and rewards. See `data/README.md` for all formats and the sample puzzle chain.
+
+### GM control from Claude Code
+Four project skills let the GM drive a live session in natural language:
+- `/gm`: transmissions (all, one player, urgent, scheduled), instability/MOTD effects, Breach settings, roster, undo, scene snapshots
+- `/gm-content`: CLI hosts/files, databank and redactions, Icebreaker gates, NET architectures, radio signals, audio and downloadable files
+- `/gm-crypto`: payloads that decode exactly in the player tools (encodings, ciphers, morse, SHA-256, stego PNG, spectrogram WAV)
+- `/gm-server`: Docker Compose ops, player LAN URL, live data check, troubleshooting
+
+All of them call `.claude/skills/gm/scripts/gmctl.py`, which writes `data/*.json` atomically, validates the result and keeps a history for `undo`. When changing a data format in the app, update gmctl (and its `validate_file`) and the skills to match. The gmctl encoders/ciphers/morse/stego mirror `js/encoder.js`, `js/cipher.js`, `js/morse.js`, `js/hasher.js` and `js/stego.js` byte for byte: keep them in sync.
 
 ## Tech Stack
 

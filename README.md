@@ -77,6 +77,19 @@ Formats, examples and a sample puzzle chain are documented in [`data/README.md`]
 
 Heads up: players can open `data/*.json` in the browser, so treat those files as readable by anyone determined enough.
 
+### Running the game from Claude Code
+
+Open Claude Code in this repository during the session and ask in plain language, or use the skills directly:
+
+| Skill | Use it for |
+|-------|------------|
+| `/gm` | "Send everyone an urgent message from Wildside", "tell Viktor he's being followed", glitch effects, MOTD, Breach difficulty and rewards, undo, scene snapshots |
+| `/gm-content` | New CLI files and hosts, passwords, dossiers and redacted sections, Icebreaker gates, NET architectures, radio signals, audio clips, files for players to download |
+| `/gm-crypto` | Encrypt or encode a clue so it decodes exactly in the players' tools, hide text in an image, draw a code into audio for the spectrogram |
+| `/gm-server` | Start/stop/rebuild the container, the URL to give players, "players don't see my changes" |
+
+The skills drive `.claude/skills/gm/scripts/gmctl.py` (Python 3.9+, no dependencies), which you can also run by hand: `python3 .claude/skills/gm/scripts/gmctl.py -h`. Every change is validated and can be reverted with `gmctl undo`.
+
 ## Project Structure
 
 ```

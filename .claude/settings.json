@@ -1,0 +1,11 @@
+{
+    "permissions": {
+        "allow": [
+            "Bash(python3 .claude/skills/gm/scripts/gmctl.py *)",
+            "Bash(python .claude/skills/gm/scripts/gmctl.py *)",
+            "Bash(docker compose ps*)",
+            "Bash(docker compose logs*)",
+            "Bash(docker ps*)"
+        ]
+    }
+}
